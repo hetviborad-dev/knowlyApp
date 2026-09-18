@@ -8,7 +8,6 @@ import {
   Platform,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../../types';
 import { FontText, CustomInput, CustomButton, Header } from '../../component';
 import { normalize, wp, hp } from '../../styles/responsiveScreen';
@@ -16,23 +15,39 @@ import { useAppTheme } from '../../hooks/useTheme';
 import { SvgIcons } from '../../assets';
 import { SCREENS } from '../../constant/screens';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 
-const LoginScreen: React.FC<Props> = ({ navigation }) => {
+const CreateAccountScreen: React.FC<Props> = ({ navigation }) => {
   const colors = useAppTheme();
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const handleLogin = () => {
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!fullName.trim()) newErrors.fullName = 'Full name is required';
+    if (!email.trim()) newErrors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      newErrors.email = 'Enter a valid email';
+    if (!password) newErrors.password = 'Password is required';
+    else if (password.length < 6)
+      newErrors.password = 'Password must be at least 6 characters';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleCreateAccount = () => {
+    if (!validate()) return;
     setLoading(true);
     setTimeout(() => setLoading(false), 1200);
   };
 
   return (
-    <View style={[styles.safeArea]}>
+    <View style={[styles.safeArea, { backgroundColor: colors.white }]}>
       <Header
-        showBack={false}
+        showBack
         containerStyle={{ backgroundColor: colors.white }}
         onBackPress={() => navigation.goBack()}
       />
@@ -51,7 +66,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             color="black2"
             pBottom={hp(1)}
           >
-            Welcome back
+            Create account
           </FontText>
           <FontText
             name="regular"
@@ -59,70 +74,58 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             pureColor={colors.placeholder}
             pBottom={hp(3)}
           >
-            Log in to continue your daily discovery.
+            Start discovering fun facts every single day.
           </FontText>
+
+          <CustomInput
+            label="Full name"
+            value={fullName}
+            onChangeText={setFullName}
+            placeholder="Your full name"
+            autoCapitalize="words"
+            error={errors.fullName}
+          />
 
           <CustomInput
             label="Email address"
             value={email}
             onChangeText={setEmail}
-            placeholder="hello@knowly.app"
+            placeholder="you@example.com"
             keyboardType="email-address"
+            error={errors.email}
           />
 
           <CustomInput
             label="Password"
             value={password}
             onChangeText={setPassword}
-            placeholder="Enter your password"
+            placeholder="Create a password"
             secureTextEntry
+            error={errors.password}
           />
-
-          <TouchableOpacity style={styles.forgotWrap} onPress={() => {}}>
-            <FontText
-              name="medium"
-              size={normalize(13)}
-              pureColor={colors.link}
-            >
-              Forgot password?
-            </FontText>
-          </TouchableOpacity>
-
-          {/* <View style={styles.dividerRow}>
-            <View style={[styles.dividerLine, {backgroundColor: colors.separator}]} />
-            <FontText size={normalize(12)} pureColor={colors.placeholder} pLeft={wp(3)} pRight={wp(3)}>
-            Or continue with
-            </FontText>
-            <View style={[styles.dividerLine, {backgroundColor: colors.separator}]} />
-            </View>
-            
-            <View style={styles.socialRow}>
-            <CustomButton title="Google" variant="social" onPress={() => {}} icon={<SvgIcons.google height={normalize(24)} width={normalize(24)} />} style={styles.socialBtnSpacing} />
-            <CustomButton title="Apple" variant="social" onPress={() => {}} icon={<SvgIcons.apple height={normalize(24)} width={normalize(24)} />} />
-            </View> */}
         </ScrollView>
 
         <View style={styles.footer}>
           <CustomButton
-            title="Log In"
-            onPress={handleLogin}
+            title="Create Account"
+            onPress={handleCreateAccount}
             loading={loading}
-            style={styles.loginBtn}
+            style={styles.createBtn}
             rightIcon={<SvgIcons.arrow color={colors.white} />}
           />
           <View style={styles.subFooter}>
             <FontText size={normalize(13)} pureColor={colors.placeholder}>
-              Don't have an account?{' '}
+              Already have an account?{' '}
             </FontText>
             <TouchableOpacity
-              onPress={() => navigation.navigate(SCREENS.SIGNUP)}
+              onPress={() => navigation.navigate(SCREENS.LOGIN)}
             >
               <FontText
                 name="bold"
                 size={normalize(13)}
                 pureColor={colors.link}
               >
-                Sign Up
+                Log In
               </FontText>
             </TouchableOpacity>
           </View>
@@ -132,30 +135,17 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-export default LoginScreen;
+export default CreateAccountScreen;
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' },
+  safeArea: { flex: 1 },
   flex: { flex: 1 },
   scrollContent: {
     paddingHorizontal: wp(6),
     paddingTop: hp(2),
     paddingBottom: hp(2),
   },
-  forgotWrap: {
-    alignSelf: 'flex-end',
-    marginBottom: hp(3),
-    marginTop: hp(0.5),
-  },
-  loginBtn: { marginBottom: hp(2) },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: hp(3),
-  },
-  dividerLine: { flex: 1, height: 1 },
-  socialRow: { flexDirection: 'row', alignItems: 'center' },
-  socialBtnSpacing: { marginRight: wp(3) },
+  createBtn: { marginBottom: hp(2) },
   footer: {
     paddingHorizontal: wp(6),
     paddingBottom: hp(2),

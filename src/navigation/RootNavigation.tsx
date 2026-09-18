@@ -6,6 +6,7 @@ import TabNavigation from './TabNavigation';
 import LoginScreen from '../screens/Login';
 import CommonStyle from '../styles';
 import { RootStackParamList } from '../types';
+import CreateAccountScreen from '../screens/CreateAccount';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -23,6 +24,8 @@ const RootNavigation = () => {
           initialRouteName={initialScreen}
           screenOptions={{headerShown: false}}>
           <Stack.Screen name={SCREENS.LOGIN} component={LoginScreen} />
+          <Stack.Screen name={SCREENS.SIGNUP} component={CreateAccountScreen} />
+
           {/* <Stack.Screen name={SCREENS.HOME} component={TabNavigation} /> */}
         </Stack.Navigator>
     </NavigationContainer>
