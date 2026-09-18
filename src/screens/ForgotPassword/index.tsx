@@ -41,7 +41,7 @@ const ForgotPasswordScreen: React.FC<Props> = ({navigation}) => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-    //   navigation.navigate(SCREENS.OTP as never);
+    navigation.navigate(SCREENS.OTP, {email});
     }, 1200);
   };
 

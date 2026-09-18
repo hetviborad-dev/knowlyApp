@@ -12,6 +12,8 @@ export const lightColors = {
   line: '#EDEDED',
   error: '#E5484D',
   link: '#2F80ED',
+  success: '#2FAE60',
+  successBg: '#E8F6EC',
 };
 
 export const darkColors = {
@@ -20,7 +22,7 @@ export const darkColors = {
   black2: '#F5F5F5',
   grey: '#3A3A3A',
   placeholder: '#8A8A8A',
-  primary: '#2198FE',
+  primary: '#2F80ED',
   primaryDark: '#1C5FC7',
   background: '#101010',
   iconBg: '#1F1F1F',
@@ -28,6 +30,8 @@ export const darkColors = {
   line: '#2C2C2C',
   error: '#FF6B6B',
   link: '#5AA0FF',
+  success: '#3FCB79',
+  successBg: '#173425',
 };
 
 export default lightColors;

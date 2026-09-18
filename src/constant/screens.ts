@@ -3,4 +3,5 @@ export const SCREENS = {
   HOME: 'Home',
   SIGNUP: 'SignUp',
   FORGOTPASSWORD: 'ForgotPassword',
+  OTP: 'OTP',
 } as const;

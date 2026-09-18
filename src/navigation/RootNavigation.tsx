@@ -1,13 +1,14 @@
-import React, {useEffect, useState} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {SCREENS} from '../constant/screens';
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { SCREENS } from '../constant/screens';
 import TabNavigation from './TabNavigation';
 import LoginScreen from '../screens/Login';
 import CommonStyle from '../styles';
 import { RootStackParamList } from '../types';
 import CreateAccountScreen from '../screens/CreateAccount';
 import ForgotPasswordScreen from '../screens/ForgotPassword';
+import OTPScreen from '../screens/OTP';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -21,15 +22,20 @@ const RootNavigation = () => {
 
   return (
     <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName={initialScreen}
-          screenOptions={{headerShown: false}}>
-          <Stack.Screen name={SCREENS.LOGIN} component={LoginScreen} />
-          <Stack.Screen name={SCREENS.SIGNUP} component={CreateAccountScreen} />
-<Stack.Screen name={SCREENS.FORGOTPASSWORD} component={ForgotPasswordScreen} />
+      <Stack.Navigator
+        initialRouteName={initialScreen}
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name={SCREENS.LOGIN} component={LoginScreen} />
+        <Stack.Screen name={SCREENS.SIGNUP} component={CreateAccountScreen} />
+        <Stack.Screen
+          name={SCREENS.FORGOTPASSWORD}
+          component={ForgotPasswordScreen}
+        />
+        <Stack.Screen name={SCREENS.OTP} component={OTPScreen} />
 
-          {/* <Stack.Screen name={SCREENS.HOME} component={TabNavigation} /> */}
-        </Stack.Navigator>
+        {/* <Stack.Screen name={SCREENS.HOME} component={TabNavigation} /> */}
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };
