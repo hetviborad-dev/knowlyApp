@@ -6,6 +6,7 @@ import { FontText, CustomButton, Header, OTPInput } from '../../component';
 import { normalize, wp, hp } from '../../styles/responsiveScreen';
 import { useAppTheme } from '../../hooks/useTheme';
 import { SvgIcons } from '../../assets';
+import { SCREENS } from '../../constant/screens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OTP'>;
 
@@ -49,7 +50,12 @@ const OTPScreen: React.FC<Props> = ({ navigation, route }) => {
   const handleVerify = () => {
     if (code.length < OTP_LENGTH) return;
     setLoading(true);
-    setTimeout(() => setLoading(false), 1200);
+    setTimeout(() => {
+      setLoading(false);
+      navigation.navigate(SCREENS.SETNEWPASSWORD, {
+        email: route.params.email,
+      });
+    }, 1200);
   };
 
   const handleResend = () => {

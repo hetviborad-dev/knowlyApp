@@ -9,6 +9,7 @@ import { RootStackParamList } from '../types';
 import CreateAccountScreen from '../screens/CreateAccount';
 import ForgotPasswordScreen from '../screens/ForgotPassword';
 import OTPScreen from '../screens/OTP';
+import SetNewPasswordScreen from '../screens/SetNewPassword';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -33,6 +34,8 @@ const RootNavigation = () => {
           component={ForgotPasswordScreen}
         />
         <Stack.Screen name={SCREENS.OTP} component={OTPScreen} />
+        <Stack.Screen name={SCREENS.SETNEWPASSWORD} component={SetNewPasswordScreen} />
+
 
         {/* <Stack.Screen name={SCREENS.HOME} component={TabNavigation} /> */}
       </Stack.Navigator>

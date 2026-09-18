@@ -2,8 +2,8 @@ export type RootStackParamList = {
   Login: undefined;
   SignUp: undefined;
   ForgotPassword: undefined;
-    OTP: {email: string};
-
+  OTP: { email: string };
+  SetNewPassword: { email: string };
 };
 
 export type TabParamList = {
