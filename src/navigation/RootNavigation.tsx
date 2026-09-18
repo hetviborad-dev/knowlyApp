@@ -7,6 +7,7 @@ import LoginScreen from '../screens/Login';
 import CommonStyle from '../styles';
 import { RootStackParamList } from '../types';
 import CreateAccountScreen from '../screens/CreateAccount';
+import ForgotPasswordScreen from '../screens/ForgotPassword';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -25,6 +26,7 @@ const RootNavigation = () => {
           screenOptions={{headerShown: false}}>
           <Stack.Screen name={SCREENS.LOGIN} component={LoginScreen} />
           <Stack.Screen name={SCREENS.SIGNUP} component={CreateAccountScreen} />
+<Stack.Screen name={SCREENS.FORGOTPASSWORD} component={ForgotPasswordScreen} />
 
           {/* <Stack.Screen name={SCREENS.HOME} component={TabNavigation} /> */}
         </Stack.Navigator>

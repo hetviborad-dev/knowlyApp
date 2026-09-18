@@ -78,7 +78,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             secureTextEntry
           />
 
-          <TouchableOpacity style={styles.forgotWrap} onPress={() => {}}>
+          <TouchableOpacity style={styles.forgotWrap} onPress={() => navigation.navigate(SCREENS.FORGOTPASSWORD)}>
             <FontText
               name="medium"
               size={normalize(13)}
