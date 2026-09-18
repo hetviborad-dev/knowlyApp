@@ -4,7 +4,27 @@ import {normalize} from '../../../styles/responsiveScreen';
 import {fonts} from '../../../assets';
 import {useAppTheme} from '../../../hooks/useTheme';
 
-const FontText = ({
+interface FontTextProps {
+  children: React.ReactNode;
+  style?: any;
+  color?: string;
+  pureColor?: string;
+  size?: number;
+  name?: 'default' | 'regular' | 'medium' | 'bold' | 'semibold';
+  lineHeightFactor?: number;
+  lines?: number;
+  opacity?: number;
+  pTop?: number;
+  pLeft?: number;
+  pRight?: number;
+  pBottom?: number;
+  textAlign?: 'left' | 'center' | 'right';
+  textDecoration?: 'underline' | 'line-through' | 'none' | null;
+  onLayout?: () => void;
+  ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip';
+}
+
+const FontText: React.FC<FontTextProps> = ({
   children,
   style,
   color = 'black',
@@ -22,13 +42,13 @@ const FontText = ({
   textDecoration = null,
   onLayout,
   ellipsizeMode = undefined,
-}: any) => {
+}) => {
   const colors = useAppTheme();
   const fontSize = size;
-  const textStyle = {
+  const textStyle: any = {
     fontSize,
     fontFamily: fonts[name],
-    color: pureColor || colors[color],
+    color: pureColor || (colors as any)[color] || colors.black2,
     lineHeight: fontSize * lineHeightFactor,
     opacity,
     paddingTop: pTop,
@@ -37,7 +57,7 @@ const FontText = ({
     paddingBottom: pBottom,
     textAlign,
     textDecorationLine: textDecoration,
-    textDecorationColor: textDecoration ? pureColor || colors[color] : null,
+    textDecorationColor: textDecoration ? pureColor || (colors as any)[color] : null,
     textDecorationStyle: textDecoration ? 'solid' : null,
   };
   return (
