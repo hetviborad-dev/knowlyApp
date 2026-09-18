@@ -6,6 +6,7 @@ import {
 import {SCREENS} from '../constant/screens';
 import {normalize} from '../styles/responsiveScreen';
 import { TabParamList } from '../types';
+import HomeScreen from '../screens/Home';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -22,6 +23,7 @@ const TabNavigation = () => {
         },
         headerTitleAlign: 'center',
       }}>
+        <Tab.Screen name={SCREENS.HOME} component={HomeScreen} />
     </Tab.Navigator>
   );
 };

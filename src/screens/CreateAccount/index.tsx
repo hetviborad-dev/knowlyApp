@@ -41,7 +41,10 @@ const CreateAccountScreen: React.FC<Props> = ({ navigation }) => {
   const handleCreateAccount = () => {
     if (!validate()) return;
     setLoading(true);
-    setTimeout(() => setLoading(false), 1200);
+    setTimeout(() => {
+      setLoading(false);
+      navigation.navigate(SCREENS.CATEGORY);
+    }, 1200);
   };
 
   return (
