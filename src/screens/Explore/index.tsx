@@ -1,109 +1,224 @@
-import React, {useMemo, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   FlatList,
+  RefreshControl,
   SafeAreaView,
   StyleSheet,
   View,
 } from 'react-native';
 
-import {hp, wp} from '../../styles/responsiveScreen';
-import {CategoryTabs, FontText} from '../../component';
+import { hp, wp } from '../../styles/responsiveScreen';
+import { CategoryTabs, FontText } from '../../component';
 import { useAppTheme } from '../../hooks/useTheme';
+import { supabase } from '../../lib/supabase';
 
 interface Category {
   id: string;
-  name: string;
+  slug: string;
+  label: string;
+  emoji: string;
 }
 
 interface Fact {
   id: string;
-  categoryId: string;
-  category: string;
+  category_id: string;
   title: string;
   content: string;
+  created_at: string;
+  category: {
+    id: string;
+    slug: string;
+    label: string;
+    emoji: string;
+  } | null;
 }
 
-const categories: Category[] = [
-  {id: 'mix', name: 'Mix'},
-  {id: 'psychology', name: 'Psychology'},
-  {id: 'science', name: 'Science'},
-  {id: 'money', name: 'Money'},
-  {id: 'technology', name: 'Technology'},
-  {id: 'history', name: 'History'},
-  {id: 'life-skills', name: 'Life Skills'},
-  {id: 'communication', name: 'Communication'},
-  {id: 'food', name: 'Food'},
-  {id: 'vehicles', name: 'Vehicles'},
-  {id: 'space', name: 'Space'},
-];
-
-const dummyFacts: Fact[] = [
-  {
-    id: '1',
-    categoryId: 'science',
-    category: 'Science',
-    title: 'Your brain is constantly changing',
-    content:
-      'The human brain can reorganize its connections throughout life. This ability is known as neuroplasticity.',
-  },
-  {
-    id: '2',
-    categoryId: 'psychology',
-    category: 'Psychology',
-    title: 'Your expectations can affect perception',
-    content:
-      'What you expect to see can influence how your brain interprets incoming information.',
-  },
-  {
-    id: '3',
-    categoryId: 'space',
-    category: 'Space',
-    title: 'A day on Venus is extremely long',
-    content:
-      'Venus rotates so slowly that one rotation takes longer than its trip around the Sun.',
-  },
-  {
-    id: '4',
-    categoryId: 'history',
-    category: 'History',
-    title: 'Libraries have existed for thousands of years',
-    content:
-      'Ancient civilizations created organized collections of written records long before modern libraries existed.',
-  },
-  {
-    id: '5',
-    categoryId: 'technology',
-    category: 'Technology',
-    title: 'The first computers were enormous',
-    content:
-      'Some early electronic computers occupied entire rooms and required large amounts of electricity.',
-  },
-  {
-    id: '6',
-    categoryId: 'money',
-    category: 'Money',
-    title: 'Compound interest grows on previous interest',
-    content:
-      'With compound interest, returns can themselves generate additional returns over time.',
-  },
-];
+const PAGE_SIZE = 10;
 
 const ExploreScreen: React.FC = () => {
   const colors = useAppTheme();
 
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [facts, setFacts] = useState<Fact[]>([]);
+
   const [selectedCategory, setSelectedCategory] = useState('mix');
 
-  const filteredFacts = useMemo(() => {
-    if (selectedCategory === 'mix') {
-      return dummyFacts;
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [factsLoading, setFactsLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+
+  /**
+   * Fetch categories
+   */
+  const fetchCategories = useCallback(async () => {
+    setCategoriesLoading(true);
+
+    const { data, error } = await supabase
+      .from('categories')
+      .select('id, slug, label, emoji')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Fetch categories error:', error);
+
+      Alert.alert(
+        'Could not load categories',
+        'Please check your connection and try again.',
+      );
+
+      setCategoriesLoading(false);
+      return;
     }
 
-    return dummyFacts.filter(
-      fact => fact.categoryId === selectedCategory,
-    );
-  }, [selectedCategory]);
+    setCategories(data ?? []);
+    setCategoriesLoading(false);
+  }, []);
 
-  const renderFact = ({item}: {item: Fact}) => {
+  /**
+   * Fetch facts
+   */
+  const fetchFacts = useCallback(
+    async (pageNumber: number, replace: boolean) => {
+      if (pageNumber === 0) {
+        setFactsLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      const from = pageNumber * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      let query = supabase
+        .from('facts')
+        .select(
+          `
+            id,
+            category_id,
+            title,
+            content,
+            created_at,
+            category:categories (
+              id,
+              slug,
+              label,
+              emoji
+            )
+          `,
+        )
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      /**
+       * If a category is selected,
+       * only fetch facts belonging to that category.
+       *
+       * Mix = all categories.
+       */
+      if (selectedCategory !== 'mix') {
+        query = query.eq('category_id', selectedCategory);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Fetch facts error:', error);
+
+        Alert.alert(
+          'Could not load facts',
+          'Please check your connection and try again.',
+        );
+
+        setFactsLoading(false);
+        setLoadingMore(false);
+        return;
+      }
+
+      const newFacts = (data ?? []) as Fact[];
+
+      setFacts(currentFacts =>
+        replace ? newFacts : [...currentFacts, ...newFacts],
+      );
+
+      setPage(pageNumber);
+
+      /**
+       * If we received less than PAGE_SIZE,
+       * there are no more facts.
+       */
+      setHasMore(newFacts.length === PAGE_SIZE);
+
+      setFactsLoading(false);
+      setLoadingMore(false);
+    },
+    [selectedCategory],
+  );
+
+  /**
+   * Load categories once
+   */
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  /**
+   * Whenever selected category changes,
+   * reset pagination and fetch from page 0.
+   */
+  useEffect(() => {
+    setFacts([]);
+    setPage(0);
+    setHasMore(true);
+
+    fetchFacts(0, true);
+  }, [fetchFacts]);
+
+  /**
+   * Category selection
+   */
+  const handleSelectCategory = (categoryId: string) => {
+    if (categoryId === selectedCategory) {
+      return;
+    }
+
+    setSelectedCategory(categoryId);
+  };
+
+  /**
+   * Load next page
+   */
+  const handleLoadMore = () => {
+    if (factsLoading || loadingMore || !hasMore) {
+      return;
+    }
+
+    fetchFacts(page + 1, false);
+  };
+
+  /**
+   * Pull to refresh
+   */
+  const handleRefresh = async () => {
+    setRefreshing(true);
+
+    setFacts([]);
+    setPage(0);
+    setHasMore(true);
+
+    await Promise.all([fetchCategories(), fetchFacts(0, true)]);
+
+    setRefreshing(false);
+  };
+
+  /**
+   * Fact card
+   */
+  const renderFact = ({ item }: { item: Fact }) => {
     return (
       <View
         style={[
@@ -112,19 +227,18 @@ const ExploreScreen: React.FC = () => {
             backgroundColor: colors.cardBg,
             borderColor: colors.separator,
           },
-        ]}>
-        <FontText
-          size={12}
-          name="bold"
-          pureColor={colors.primary}>
-          {item.category.toUpperCase()}
+        ]}
+      >
+        <FontText size={12} name="bold" pureColor={colors.primary}>
+          {(item.category?.label ?? 'General').toUpperCase()}
         </FontText>
 
         <FontText
           size={18}
           name="bold"
           pureColor={colors.black}
-          style={styles.factTitle}>
+          style={styles.factTitle}
+        >
           {item.title}
         </FontText>
 
@@ -132,8 +246,50 @@ const ExploreScreen: React.FC = () => {
           size={14}
           name="semibold"
           pureColor={colors.placeholder}
-          style={styles.factContent}>
+          style={styles.factContent}
+        >
           {item.content}
+        </FontText>
+      </View>
+    );
+  };
+
+  /**
+   * Pagination loader
+   */
+  const renderFooter = () => {
+    if (!loadingMore) {
+      return null;
+    }
+
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator color={colors.primary} />
+      </View>
+    );
+  };
+
+  /**
+   * Empty state
+   */
+  const renderEmpty = () => {
+    if (factsLoading) {
+      return (
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.emptyContainer}>
+        <FontText
+          size={14}
+          name="semibold"
+          pureColor={colors.placeholder}
+          textAlign="center"
+        >
+          No facts found for this category.
         </FontText>
       </View>
     );
@@ -146,12 +302,11 @@ const ExploreScreen: React.FC = () => {
         {
           backgroundColor: colors.background,
         },
-      ]}>
+      ]}
+    >
+      {/* Header */}
       <View style={styles.header}>
-        <FontText
-          size={28}
-          name="bold"
-          pureColor={colors.black}>
+        <FontText size={28} name="bold" pureColor={colors.black}>
           Explore
         </FontText>
 
@@ -159,23 +314,55 @@ const ExploreScreen: React.FC = () => {
           size={14}
           name="semibold"
           pureColor={colors.placeholder}
-          style={styles.subtitle}>
+          style={styles.subtitle}
+        >
           Discover something worth knowing.
         </FontText>
       </View>
 
-      <CategoryTabs
-        categories={categories}
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-      />
+      {/* Categories */}
+      {categoriesLoading ? (
+        <View style={styles.categoryLoader}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      ) : (
+        <CategoryTabs
+          categories={[
+            {
+              id: 'mix',
+              name: 'Mix',
+            },
+            ...categories.map(category => ({
+              id: category.id,
+              name: category.label,
+            })),
+          ]}
+          selectedCategory={selectedCategory}
+          onSelectCategory={handleSelectCategory}
+        />
+      )}
 
+      {/* Facts */}
       <FlatList
-        data={filteredFacts}
+        data={facts}
         keyExtractor={item => item.id}
         renderItem={renderFact}
+        ListEmptyComponent={renderEmpty}
+        ListFooterComponent={renderFooter}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          facts.length === 0 && styles.emptyListContent,
+        ]}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.primary}
+          />
+        }
       />
     </SafeAreaView>
   );
@@ -196,10 +383,27 @@ const styles = StyleSheet.create({
     marginTop: hp(0.6),
   },
 
+  categoryLoader: {
+    height: hp(7),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
   listContent: {
     paddingHorizontal: wp(5),
     paddingTop: hp(1),
     paddingBottom: hp(12),
+  },
+
+  emptyListContent: {
+    flexGrow: 1,
+  },
+
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: wp(8),
   },
 
   factCard: {
@@ -217,6 +421,11 @@ const styles = StyleSheet.create({
   factContent: {
     marginTop: hp(0.8),
     lineHeight: hp(2.6),
+  },
+
+  footerLoader: {
+    paddingVertical: hp(2),
+    alignItems: 'center',
   },
 });
 
