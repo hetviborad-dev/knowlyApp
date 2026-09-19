@@ -8,4 +8,5 @@ export const SCREENS = {
   SETNEWPASSWORD: 'SetNewPassword',
   CATEGORY: 'Category',
   PROFILE: 'Profile',
+  EXPLORE: 'Explore',
 } as const;

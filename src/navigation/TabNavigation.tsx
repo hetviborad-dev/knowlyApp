@@ -10,6 +10,7 @@ import {TabParamList} from '../types';
 
 import HomeScreen from '../screens/Home';
 import ProfileScreen from '../screens/Profile';
+import ExploreScreen from '../screens/Explore';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -39,6 +40,11 @@ const TabNavigation = () => {
           title: 'Home',
         }}
       />
+
+      <Tab.Screen
+  name="Explore"
+  component={ExploreScreen}
+/>
 
       <Tab.Screen
         name="Profile"
