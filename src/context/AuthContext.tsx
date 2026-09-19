@@ -390,41 +390,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signOut = async (): Promise<{
     error: string | null;
   }> => {
-    console.log('========== SIGN OUT START ==========');
-
     const {
       data: { session: currentSession },
     } = await supabase.auth.getSession();
-
-    console.log(
-      'Session before signOut:',
-      currentSession ? 'EXISTS' : 'MISSING',
-    );
 
     const { error } = await supabase.auth.signOut({
       scope: 'local',
     });
 
-    console.log('signOut error:', error?.message ?? 'null');
-
-    console.log('========== SIGN OUT END ==========');
-
-    /*
-     * IMPORTANT FIX:
-     *
-     * Do not rely on the onAuthStateChange listener
-     * to flip these flags. In React Native, the
-     * SIGNED_OUT event can arrive a tick late (or race
-     * with a previous USER_UPDATED event), which leaves
-     * RootNavigation rendering the old screen even
-     * though the user is technically signed out.
-     *
-     * Force the local state to a clean, logged-out
-     * state immediately and unconditionally, regardless
-     * of whether supabase.auth.signOut() returned an
-     * error or not (local scope sign-out clears local
-     * storage/session either way).
-     */
     setSession(null);
     setUser(null);
     setIsPasswordRecovery(false);
@@ -441,9 +414,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   };
 
-  /*
-   * SEND PASSWORD RESET OTP
-   */
   const sendPasswordResetOtp = async (
     email: string,
   ): Promise<{ error: string | null }> => {
@@ -456,9 +426,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   };
 
-  /*
-   * VERIFY PASSWORD RESET OTP
-   */
   const verifyPasswordResetOtp = async (
     email: string,
     token: string,

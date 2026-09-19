@@ -7,4 +7,5 @@ export const SCREENS = {
   OTP: 'OTP',
   SETNEWPASSWORD: 'SetNewPassword',
   CATEGORY: 'Category',
+  PROFILE: 'Profile',
 } as const;
