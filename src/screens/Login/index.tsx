@@ -8,34 +8,86 @@ import {
   Platform,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../../types';
 import { FontText, CustomInput, CustomButton, Header } from '../../component';
 import { normalize, wp, hp } from '../../styles/responsiveScreen';
 import { useAppTheme } from '../../hooks/useTheme';
 import { SvgIcons } from '../../assets';
 import { SCREENS } from '../../constant/screens';
+import { useAuth } from '../../context/AuthContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const colors = useAppTheme();
+  const { signIn } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    general?: string;
+  }>({});
+
+  const validate = () => {
+    const newErrors: {
+      email?: string;
+      password?: string;
+    } = {};
+
+    if (!email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      newErrors.email = 'Enter a valid email';
+    }
+
+    if (!password) {
+      newErrors.password = 'Password is required';
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleLogin = async () => {
+    if (!validate()) {
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => setLoading(false), 1200);
+    setErrors({});
+
+    const { error } = await signIn(email, password);
+
+    setLoading(false);
+
+    if (error) {
+      setErrors({
+        general: error,
+      });
+      return;
+    }
+
+    // No navigation.navigate() here.
+    //
+    // Supabase creates the session.
+    // AuthContext receives the session.
+    // RootNavigation sees the session.
+    // RootNavigation automatically switches to Dashboard.
   };
 
   return (
-    <View style={[styles.safeArea]}>
+    <View style={styles.safeArea}>
       <Header
         showBack={false}
         containerStyle={{ backgroundColor: colors.white }}
         onBackPress={() => navigation.goBack()}
       />
+
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -53,6 +105,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
           >
             Welcome back
           </FontText>
+
           <FontText
             name="regular"
             size={normalize(14)}
@@ -65,20 +118,37 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
           <CustomInput
             label="Email address"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={text => {
+              setEmail(text);
+              if (errors.email || errors.general) {
+                setErrors({});
+              }
+            }}
             placeholder="hello@knowly.app"
             keyboardType="email-address"
+            autoCapitalize="none"
+            error={errors.email}
           />
 
           <CustomInput
             label="Password"
             value={password}
-            onChangeText={setPassword}
+            onChangeText={text => {
+              setPassword(text);
+              if (errors.password || errors.general) {
+                setErrors({});
+              }
+            }}
             placeholder="Enter your password"
             secureTextEntry
+            autoCapitalize="none"
+            error={errors.password}
           />
 
-          <TouchableOpacity style={styles.forgotWrap} onPress={() => navigation.navigate(SCREENS.FORGOTPASSWORD)}>
+          <TouchableOpacity
+            style={styles.forgotWrap}
+            onPress={() => navigation.navigate(SCREENS.FORGOTPASSWORD)}
+          >
             <FontText
               name="medium"
               size={normalize(13)}
@@ -88,18 +158,13 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             </FontText>
           </TouchableOpacity>
 
-          {/* <View style={styles.dividerRow}>
-            <View style={[styles.dividerLine, {backgroundColor: colors.separator}]} />
-            <FontText size={normalize(12)} pureColor={colors.placeholder} pLeft={wp(3)} pRight={wp(3)}>
-            Or continue with
-            </FontText>
-            <View style={[styles.dividerLine, {backgroundColor: colors.separator}]} />
+          {errors.general ? (
+            <View style={styles.generalError}>
+              <FontText size={normalize(12)} pureColor={colors.error || 'red'}>
+                {errors.general}
+              </FontText>
             </View>
-            
-            <View style={styles.socialRow}>
-            <CustomButton title="Google" variant="social" onPress={() => {}} icon={<SvgIcons.google height={normalize(24)} width={normalize(24)} />} style={styles.socialBtnSpacing} />
-            <CustomButton title="Apple" variant="social" onPress={() => {}} icon={<SvgIcons.apple height={normalize(24)} width={normalize(24)} />} />
-            </View> */}
+          ) : null}
         </ScrollView>
 
         <View style={styles.footer}>
@@ -110,10 +175,12 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             style={styles.loginBtn}
             rightIcon={<SvgIcons.arrow color={colors.white} />}
           />
+
           <View style={styles.subFooter}>
             <FontText size={normalize(13)} pureColor={colors.placeholder}>
               Don't have an account?{' '}
             </FontText>
+
             <TouchableOpacity
               onPress={() => navigation.navigate(SCREENS.SIGNUP)}
             >
@@ -135,31 +202,41 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' },
-  flex: { flex: 1 },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+
+  flex: {
+    flex: 1,
+  },
+
   scrollContent: {
     paddingHorizontal: wp(6),
     paddingTop: hp(2),
     paddingBottom: hp(2),
   },
+
   forgotWrap: {
     alignSelf: 'flex-end',
     marginBottom: hp(3),
     marginTop: hp(0.5),
   },
-  loginBtn: { marginBottom: hp(2) },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: hp(3),
+
+  generalError: {
+    marginTop: hp(0.5),
+    marginBottom: hp(1),
   },
-  dividerLine: { flex: 1, height: 1 },
-  socialRow: { flexDirection: 'row', alignItems: 'center' },
-  socialBtnSpacing: { marginRight: wp(3) },
+
+  loginBtn: {
+    marginBottom: hp(2),
+  },
+
   footer: {
     paddingHorizontal: wp(6),
     paddingBottom: hp(2),
   },
+
   subFooter: {
     flexDirection: 'row',
     justifyContent: 'center',

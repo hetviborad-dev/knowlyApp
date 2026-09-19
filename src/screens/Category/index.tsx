@@ -1,22 +1,66 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, FlatList} from 'react-native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../types';
-import {FontText, CustomButton, Header, CategoryCard} from '../../component';
-import {normalize, wp, hp} from '../../styles/responsiveScreen';
-import {useAppTheme} from '../../hooks/useTheme';
-import {MOCK_CATEGORIES, Category} from '../../constant/categories';
-import {SCREENS} from '../../constant/screens';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, FlatList, Alert } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
+import { RootStackParamList } from '../../types';
+import { FontText, CustomButton, Header, CategoryCard } from '../../component';
+
+import { normalize, wp, hp } from '../../styles/responsiveScreen';
+
+import { useAppTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Category'>;
+
+interface SupabaseCategory {
+  id: string;
+  slug: string;
+  label: string;
+  emoji: string;
+  created_at: string;
+}
 
 const MIN_SELECTION = 1;
 const NUM_COLUMNS = 3;
 
-const CategoryScreen: React.FC<Props> = ({navigation}) => {
+const CategoryScreen: React.FC<Props> = () => {
   const colors = useAppTheme();
+
+  const { user, completeCategorySelection } = useAuth();
+
+  const [categories, setCategories] = useState<SupabaseCategory[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    setLoadingCategories(true);
+
+    const { data, error } = await supabase
+      .from('categories')
+      .select('id, slug, label, emoji, created_at')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Fetch categories error:', error);
+
+      Alert.alert(
+        'Something went wrong',
+        'We could not load the topics. Please try again.',
+      );
+
+      setLoadingCategories(false);
+      return;
+    }
+
+    setCategories(data ?? []);
+    setLoadingCategories(false);
+  };
 
   const toggleCategory = (id: string) => {
     setSelectedIds(prev =>
@@ -26,17 +70,39 @@ const CategoryScreen: React.FC<Props> = ({navigation}) => {
 
   const canContinue = selectedIds.length >= MIN_SELECTION;
 
-  const handleContinue = () => {
-    if (!canContinue) return;
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      // TODO: Persist selectedIds to Supabase user profile once wired up.
-      navigation.navigate(SCREENS.DASHBOARD);
-    }, 800);
+  const handleContinue = async () => {
+    if (!canContinue || !user) {
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const { error } = await supabase.from('user_categories').insert(
+        selectedIds.map(categoryId => ({
+          user_id: user.id,
+          category_id: categoryId,
+        })),
+      );
+
+      if (error) {
+        console.error('Save categories error:', error);
+
+        Alert.alert(
+          'Could not save topics',
+          'Something went wrong while saving your topics. Please try again.',
+        );
+
+        return;
+      }
+
+      completeCategorySelection();
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const renderItem = ({item}: {item: Category}) => (
+  const renderItem = ({ item }: { item: SupabaseCategory }) => (
     <CategoryCard
       emoji={item.emoji}
       label={item.label}
@@ -47,53 +113,89 @@ const CategoryScreen: React.FC<Props> = ({navigation}) => {
   );
 
   const getButtonLabel = () => {
-    if (selectedIds.length === 0) return `Pick ${MIN_SELECTION} to continue`;
+    if (selectedIds.length === 0) {
+      return `Pick ${MIN_SELECTION} to continue`;
+    }
+
     return `Continue with ${selectedIds.length} ${
       selectedIds.length === 1 ? 'topic' : 'topics'
     }`;
   };
 
   return (
-    <View style={[styles.safeArea, {backgroundColor: colors.background}]}>
+    <View
+      style={[
+        styles.safeArea,
+        {
+          backgroundColor: colors.background,
+        },
+      ]}
+    >
       <Header
         showBack
-        containerStyle={{backgroundColor: colors.background}}
-        onBackPress={() => navigation.goBack()}
+        containerStyle={{
+          backgroundColor: colors.background,
+        }}
+        onBackPress={() => {}}
       />
 
       <View style={styles.headerText}>
-        <FontText name="medium" size={normalize(12)} pureColor={colors.primary} pBottom={hp(1)}>
+        <FontText
+          name="medium"
+          size={normalize(12)}
+          pureColor={colors.primary}
+          pBottom={hp(1)}
+        >
           STEP 1 OF 3 · TASTE
         </FontText>
+
         <FontText
           name="bold"
           size={normalize(26)}
           color="black2"
           lineHeightFactor={1.15}
-          pBottom={hp(1)}>
+          pBottom={hp(1)}
+        >
           Pick topics you'll never stop wondering about.
         </FontText>
-        <FontText name="regular" size={normalize(13)} pureColor={colors.placeholder}>
-          {MOCK_CATEGORIES.length} topics. Change these any time.
+
+        <FontText
+          name="regular"
+          size={normalize(13)}
+          pureColor={colors.placeholder}
+        >
+          {categories.length} topics. Change these any time.
         </FontText>
       </View>
 
-      <FlatList
-        data={MOCK_CATEGORIES}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        numColumns={NUM_COLUMNS}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-      />
+      {loadingCategories ? (
+        <View style={styles.loadingContainer}>
+          <FontText
+            name="regular"
+            size={normalize(13)}
+            pureColor={colors.placeholder}
+          >
+            Loading topics...
+          </FontText>
+        </View>
+      ) : (
+        <FlatList
+          data={categories}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          numColumns={NUM_COLUMNS}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
 
       <View style={styles.footer}>
         <CustomButton
           title={getButtonLabel()}
           onPress={handleContinue}
-          loading={loading}
-          disabled={!canContinue}
+          loading={saving}
+          disabled={!canContinue || loadingCategories}
         />
       </View>
     </View>
@@ -103,26 +205,39 @@ const CategoryScreen: React.FC<Props> = ({navigation}) => {
 export default CategoryScreen;
 
 const styles = StyleSheet.create({
-  safeArea: {flex: 1},
+  safeArea: {
+    flex: 1,
+  },
+
   headerText: {
     paddingHorizontal: wp(6),
     paddingTop: hp(1),
     paddingBottom: hp(2),
   },
+
   listContent: {
     paddingHorizontal: wp(5),
     paddingBottom: hp(2),
   },
+
   row: {
     justifyContent: 'space-between',
     marginBottom: wp(3),
   },
+
   cardSpacing: {
     marginHorizontal: wp(1),
   },
+
   footer: {
     paddingHorizontal: wp(6),
     paddingBottom: hp(3),
     paddingTop: hp(1),
+  },
+
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

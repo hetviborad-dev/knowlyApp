@@ -6,24 +6,22 @@
  */
 
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaView,
-  SafeAreaProvider,
-} from 'react-native-safe-area-context';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import CommonStyle from './src/styles';
 import RootNavigation from './src/navigation/RootNavigation';
+import { AuthProvider } from './src/context/AuthContext';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
     <SafeAreaProvider>
-    <SafeAreaView style={CommonStyle.flex} edges={['top', 'left', 'right']}>
-      <StatusBar
-        barStyle="dark-content"
-      />
-      <RootNavigation />
-    </SafeAreaView>
+      <SafeAreaView style={CommonStyle.flex} edges={['top', 'left', 'right']}>
+        <StatusBar barStyle="dark-content" />
+        <AuthProvider>
+          <RootNavigation />
+        </AuthProvider>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 }

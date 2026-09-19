@@ -1,47 +1,96 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
+
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import { SCREENS } from '../constant/screens';
+
 import TabNavigation from './TabNavigation';
+
 import LoginScreen from '../screens/Login';
-import CommonStyle from '../styles';
-import { RootStackParamList } from '../types';
 import CreateAccountScreen from '../screens/CreateAccount';
 import ForgotPasswordScreen from '../screens/ForgotPassword';
 import OTPScreen from '../screens/OTP';
 import SetNewPasswordScreen from '../screens/SetNewPassword';
 import CategoryScreen from '../screens/Category';
 
+import { RootStackParamList } from '../types';
+
+import { useAuth } from '../context/AuthContext';
+
+import { useAppTheme } from '../hooks/useTheme';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootNavigation = () => {
-  const [initialScreen, setInitialScreen] =
-    useState<keyof RootStackParamList>();
+  const { session, loading, needsCategorySelection, isPasswordRecovery } =
+    useAuth();
 
-  const handleProfileCheck = (profile: any) => {
-    setInitialScreen('');
-  };
+  const colors = useAppTheme();
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: colors.white,
+        }}
+      >
+        <ActivityIndicator size="small" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName={initialScreen}
-        screenOptions={{ headerShown: false }}
+        screenOptions={{
+          headerShown: false,
+        }}
       >
-        <Stack.Screen name={SCREENS.LOGIN} component={LoginScreen} />
-        <Stack.Screen name={SCREENS.SIGNUP} component={CreateAccountScreen} />
-        <Stack.Screen
-          name={SCREENS.FORGOTPASSWORD}
-          component={ForgotPasswordScreen}
-        />
-        <Stack.Screen name={SCREENS.OTP} component={OTPScreen} />
-        <Stack.Screen
-          name={SCREENS.SETNEWPASSWORD}
-          component={SetNewPasswordScreen}
-        />
-        <Stack.Screen name={SCREENS.CATEGORY} component={CategoryScreen} />
+        {!session ? (
+          <>
+            <Stack.Screen name={SCREENS.LOGIN} component={LoginScreen} />
 
-        <Stack.Screen name={SCREENS.DASHBOARD} component={TabNavigation} />
+            <Stack.Screen
+              name={SCREENS.SIGNUP}
+              component={CreateAccountScreen}
+            />
+
+            <Stack.Screen
+              name={SCREENS.FORGOTPASSWORD}
+              component={ForgotPasswordScreen}
+            />
+
+            <Stack.Screen name={SCREENS.OTP} component={OTPScreen} />
+
+            <Stack.Screen
+              name={SCREENS.SETNEWPASSWORD}
+              component={SetNewPasswordScreen}
+            />
+          </>
+        ) : isPasswordRecovery ? (
+          /*
+           * The user has verified the password-reset OTP.
+           *
+           * Supabase has created a temporary recovery
+           * session, but the user is NOT considered
+           * normally logged in for navigation purposes.
+           */
+          <>
+            <Stack.Screen
+              name={SCREENS.SETNEWPASSWORD}
+              component={SetNewPasswordScreen}
+            />
+          </>
+        ) : needsCategorySelection ? (
+          <Stack.Screen name={SCREENS.CATEGORY} component={CategoryScreen} />
+        ) : (
+          <Stack.Screen name={SCREENS.DASHBOARD} component={TabNavigation} />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

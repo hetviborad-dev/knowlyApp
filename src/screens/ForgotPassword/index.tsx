@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
+
 import {
   View,
   StyleSheet,
@@ -6,19 +7,32 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {RootStackParamList} from '../../types';
-import {FontText, CustomInput, CustomButton, Header} from '../../component';
-import {normalize, wp, hp} from '../../styles/responsiveScreen';
-import {useAppTheme} from '../../hooks/useTheme';
-import {SvgIcons} from '../../assets';
-import {SCREENS} from '../../constant/screens';
+
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
+import { RootStackParamList } from '../../types';
+
+import { FontText, CustomInput, CustomButton, Header } from '../../component';
+
+import { normalize, wp, hp } from '../../styles/responsiveScreen';
+
+import { useAppTheme } from '../../hooks/useTheme';
+
+import { SvgIcons } from '../../assets';
+
+import { SCREENS } from '../../constant/screens';
+
+import { useAuth } from '../../context/AuthContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>;
 
-const ForgotPasswordScreen: React.FC<Props> = ({navigation}) => {
+const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
   const colors = useAppTheme();
+
+  const { sendPasswordResetOtp } = useAuth();
+
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,47 +42,83 @@ const ForgotPasswordScreen: React.FC<Props> = ({navigation}) => {
       setError('Email is required');
       return false;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       setError('Enter a valid email');
       return false;
     }
+
     setError('');
+
     return true;
   };
 
-  const handleSendOtp = () => {
-    if (!validate()) return;
+  const handleSendOtp = async () => {
+    if (!validate()) {
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    navigation.navigate(SCREENS.OTP, {email});
-    }, 1200);
+
+    const { error: resetError } = await sendPasswordResetOtp(email);
+
+    setLoading(false);
+
+    if (resetError) {
+      console.error('Send password reset OTP error:', resetError);
+
+      Alert.alert('Could not send OTP', resetError);
+
+      return;
+    }
+
+    navigation.navigate(SCREENS.OTP, {
+      email: email.trim().toLowerCase(),
+    });
   };
 
   return (
-    <View style={[styles.safeArea, {backgroundColor: colors.white}]}>
+    <View
+      style={[
+        styles.safeArea,
+        {
+          backgroundColor: colors.white,
+        },
+      ]}
+    >
       <Header
         showBack
-        containerStyle={{backgroundColor: colors.white}}
+        containerStyle={{
+          backgroundColor: colors.white,
+        }}
         onBackPress={() => navigation.goBack()}
       />
+
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
-
-          <FontText name="bold" size={normalize(28)} color="black2" pBottom={hp(1)}>
+          showsVerticalScrollIndicator={false}
+        >
+          <FontText
+            name="bold"
+            size={normalize(28)}
+            color="black2"
+            pBottom={hp(1)}
+          >
             Reset password
           </FontText>
+
           <FontText
             name="regular"
             size={normalize(14)}
             pureColor={colors.placeholder}
             lineHeightFactor={1.4}
-            pBottom={hp(3)}>
+            pBottom={hp(3)}
+          >
             Enter your registered email address and we'll send a 6-digit
             verification code.
           </FontText>
@@ -78,7 +128,10 @@ const ForgotPasswordScreen: React.FC<Props> = ({navigation}) => {
             value={email}
             onChangeText={text => {
               setEmail(text);
-              if (error) setError('');
+
+              if (error) {
+                setError('');
+              }
             }}
             placeholder="you@example.com"
             keyboardType="email-address"
@@ -94,12 +147,20 @@ const ForgotPasswordScreen: React.FC<Props> = ({navigation}) => {
             style={styles.sendBtn}
             rightIcon={<SvgIcons.arrow color={colors.white} />}
           />
+
           <View style={styles.subFooter}>
             <FontText size={normalize(13)} pureColor={colors.placeholder}>
               Remembered it?{' '}
             </FontText>
-            <TouchableOpacity onPress={() => navigation.navigate(SCREENS.LOGIN)}>
-              <FontText name="bold" size={normalize(13)} pureColor={colors.link}>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate(SCREENS.LOGIN)}
+            >
+              <FontText
+                name="bold"
+                size={normalize(13)}
+                pureColor={colors.link}
+              >
                 Log In
               </FontText>
             </TouchableOpacity>
@@ -113,18 +174,29 @@ const ForgotPasswordScreen: React.FC<Props> = ({navigation}) => {
 export default ForgotPasswordScreen;
 
 const styles = StyleSheet.create({
-  safeArea: {flex: 1},
-  flex: {flex: 1},
+  safeArea: {
+    flex: 1,
+  },
+
+  flex: {
+    flex: 1,
+  },
+
   scrollContent: {
     paddingHorizontal: wp(6),
     paddingTop: hp(2),
     paddingBottom: hp(2),
   },
-  sendBtn: {marginBottom: hp(2)},
+
+  sendBtn: {
+    marginBottom: hp(2),
+  },
+
   footer: {
     paddingHorizontal: wp(6),
     paddingBottom: hp(2),
   },
+
   subFooter: {
     flexDirection: 'row',
     justifyContent: 'center',
