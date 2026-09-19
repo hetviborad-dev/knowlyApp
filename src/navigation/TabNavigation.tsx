@@ -1,14 +1,13 @@
 import React from 'react';
 
-import {
-  createBottomTabNavigator,
-} from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import {SCREENS} from '../constant/screens';
-import {normalize} from '../styles/responsiveScreen';
-import {TabParamList} from '../types';
+import { SCREENS } from '../constant/screens';
+import { normalize } from '../styles/responsiveScreen';
+import { TabParamList } from '../types';
 
 import HomeScreen from '../screens/Home';
+import FactsScreen from '../screens/Facts';
 import ProfileScreen from '../screens/Profile';
 import ExploreScreen from '../screens/Explore';
 
@@ -32,25 +31,41 @@ const TabNavigation = () => {
           fontFamily: 'Nunito-Medium',
           fontSize: normalize(11),
         },
-      }}>
+      }}
+    >
       <Tab.Screen
         name={SCREENS.HOME}
         component={HomeScreen}
         options={{
           title: 'Home',
+          headerShown: false,
         }}
       />
 
       <Tab.Screen
-  name="Explore"
-  component={ExploreScreen}
-/>
+        name={SCREENS.FACTS}
+        component={FactsScreen}
+        options={{
+          title: 'Facts',
+          headerShown: false,
+        }}
+      />
 
       <Tab.Screen
-        name="Profile"
+        name={SCREENS.EXPLORE}
+        component={ExploreScreen}
+        options={{
+          title: 'Explore',
+          headerShown: false,
+        }}
+      />
+
+      <Tab.Screen
+        name={SCREENS.PROFILE}
         component={ProfileScreen}
         options={{
           title: 'Profile',
+          headerShown: false,
         }}
       />
     </Tab.Navigator>

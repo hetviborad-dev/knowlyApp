@@ -11,6 +11,7 @@ export type RootStackParamList = {
 
 export type TabParamList = {
   Home: undefined;
-  Profile: undefined;
+  Facts: undefined;
   Explore: undefined;
+  Profile: undefined;
 };

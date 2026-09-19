@@ -16,7 +16,7 @@ function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={CommonStyle.flex} edges={['left', 'right']}>
+      <SafeAreaView style={CommonStyle.flex} edges={['top','left', 'right']}>
         <StatusBar barStyle="dark-content" />
         <AuthProvider>
           <RootNavigation />
