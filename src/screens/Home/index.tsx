@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import {
   ActivityIndicator,
@@ -12,11 +12,11 @@ import {
 
 import Ionicons from '@react-native-vector-icons/ionicons';
 
-import {FactCard, FontText} from '../../component';
-import {useAuth} from '../../context/AuthContext';
-import {useAppTheme} from '../../hooks/useTheme';
-import {supabase} from '../../lib/supabase';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
+import { FactCard, FontText } from '../../component';
+import { useAuth } from '../../context/AuthContext';
+import { useAppTheme } from '../../hooks/useTheme';
+import { supabase } from '../../lib/supabase';
+import { hp, normalize, wp } from '../../styles/responsiveScreen';
 
 interface Category {
   id: string;
@@ -36,19 +36,18 @@ interface Fact {
 
 const HomeScreen: React.FC = () => {
   const colors = useAppTheme();
-  const {user} = useAuth();
+  const { user } = useAuth();
 
   const [fact, setFact] = useState<Fact | null>(null);
-  const [selectedCategory, setSelectedCategory] =
-    useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const username =
-    user?.user_metadata?.full_name ||
-    user?.user_metadata?.name ||
-    'Explorer';
+    user?.user_metadata?.full_name || user?.user_metadata?.name || 'Explorer';
 
   const fetchHomeFact = useCallback(async () => {
     if (!user?.id) {
@@ -62,7 +61,7 @@ const HomeScreen: React.FC = () => {
       /*
        * 1. Get the categories selected by the current user.
        */
-      const {data: userCategories, error: categoryError} = await supabase
+      const { data: userCategories, error: categoryError } = await supabase
         .from('user_categories')
         .select(
           `
@@ -78,10 +77,7 @@ const HomeScreen: React.FC = () => {
         .eq('user_id', user.id);
 
       if (categoryError) {
-        console.error(
-          'Fetch user categories error:',
-          categoryError,
-        );
+        console.error('Fetch user categories error:', categoryError);
 
         Alert.alert(
           'Could not load your topics',
@@ -103,8 +99,7 @@ const HomeScreen: React.FC = () => {
        * Later we can make this button switch between
        * all categories selected by the user.
        */
-      const firstCategory =
-        userCategories[0]?.category as Category | null;
+      const firstCategory = userCategories[0]?.category as Category | null;
 
       setSelectedCategory(firstCategory);
 
@@ -124,7 +119,7 @@ const HomeScreen: React.FC = () => {
        * We use a random offset instead of loading all
        * facts into the app.
        */
-      const {count, error: countError} = await supabase
+      const { count, error: countError } = await supabase
         .from('facts')
         .select('id', {
           count: 'exact',
@@ -150,7 +145,7 @@ const HomeScreen: React.FC = () => {
 
       const randomIndex = Math.floor(Math.random() * count);
 
-      const {data: factData, error: factError} = await supabase
+      const { data: factData, error: factError } = await supabase
         .from('facts')
         .select(
           `
@@ -185,10 +180,7 @@ const HomeScreen: React.FC = () => {
     } catch (error) {
       console.error('Home fact error:', error);
 
-      Alert.alert(
-        'Something went wrong',
-        'We could not load your fact.',
-      );
+      Alert.alert('Something went wrong', 'We could not load your fact.');
     } finally {
       setLoading(false);
     }
@@ -231,10 +223,9 @@ const HomeScreen: React.FC = () => {
             backgroundColor: colors.cardBg,
             borderColor: colors.separator,
           },
-        ]}>
-        <FontText
-          size={normalize(23)}
-          textAlign="center">
+        ]}
+      >
+        <FontText size={normalize(23)} textAlign="center">
           {selectedCategory.emoji}
         </FontText>
       </TouchableOpacity>
@@ -248,7 +239,8 @@ const HomeScreen: React.FC = () => {
         {
           backgroundColor: colors.background,
         },
-      ]}>
+      ]}
+    >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -258,7 +250,8 @@ const HomeScreen: React.FC = () => {
             onRefresh={handleRefresh}
             tintColor={colors.primary}
           />
-        }>
+        }
+      >
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.greetingContainer}>
@@ -266,7 +259,8 @@ const HomeScreen: React.FC = () => {
               name="regular"
               size={normalize(14)}
               pureColor={colors.placeholder}
-              pBottom={hp(0.3)}>
+              pBottom={hp(0.3)}
+            >
               Hello,
             </FontText>
 
@@ -275,7 +269,8 @@ const HomeScreen: React.FC = () => {
               size={normalize(23)}
               pureColor={colors.black2}
               lines={1}
-              ellipsizeMode="tail">
+              ellipsizeMode="tail"
+            >
               {username}
             </FontText>
           </View>
@@ -289,7 +284,8 @@ const HomeScreen: React.FC = () => {
             name="bold"
             size={normalize(27)}
             pureColor={colors.black2}
-            lineHeightFactor={1.15}>
+            lineHeightFactor={1.15}
+          >
             Something worth knowing
           </FontText>
 
@@ -297,7 +293,8 @@ const HomeScreen: React.FC = () => {
             name="regular"
             size={normalize(14)}
             pureColor={colors.placeholder}
-            pTop={hp(0.8)}>
+            pTop={hp(0.8)}
+          >
             Discover a fact from your favourite topics.
           </FontText>
         </View>
@@ -305,10 +302,7 @@ const HomeScreen: React.FC = () => {
         {/* Fact */}
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator
-              size="small"
-              color={colors.primary}
-            />
+            <ActivityIndicator size="small" color={colors.primary} />
           </View>
         ) : fact ? (
           <View style={styles.factContainer}>
@@ -322,14 +316,16 @@ const HomeScreen: React.FC = () => {
                 backgroundColor: colors.cardBg,
                 borderColor: colors.separator,
               },
-            ]}>
+            ]}
+          >
             <View
               style={[
                 styles.emptyIcon,
                 {
                   backgroundColor: colors.primaryTint,
                 },
-              ]}>
+              ]}
+            >
               <Ionicons
                 name="sparkles-outline"
                 size={normalize(26)}
@@ -342,7 +338,8 @@ const HomeScreen: React.FC = () => {
               size={normalize(19)}
               pureColor={colors.black2}
               textAlign="center"
-              pTop={hp(2)}>
+              pTop={hp(2)}
+            >
               No fact available
             </FontText>
 
@@ -352,7 +349,8 @@ const HomeScreen: React.FC = () => {
               pureColor={colors.placeholder}
               textAlign="center"
               lineHeightFactor={1.4}
-              pTop={hp(0.8)}>
+              pTop={hp(0.8)}
+            >
               We couldn't find a fact for your selected topics.
             </FontText>
           </View>
