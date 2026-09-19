@@ -53,9 +53,7 @@ const ExploreScreen: React.FC = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
-  /**
-   * Fetch categories
-   */
+  
   const fetchCategories = useCallback(async () => {
     setCategoriesLoading(true);
 
@@ -80,9 +78,7 @@ const ExploreScreen: React.FC = () => {
     setCategoriesLoading(false);
   }, []);
 
-  /**
-   * Fetch facts
-   */
+  
   const fetchFacts = useCallback(
     async (pageNumber: number, replace: boolean) => {
       if (pageNumber === 0) {
@@ -114,12 +110,7 @@ const ExploreScreen: React.FC = () => {
         .order('created_at', { ascending: false })
         .range(from, to);
 
-      /**
-       * If a category is selected,
-       * only fetch facts belonging to that category.
-       *
-       * Mix = all categories.
-       */
+      
       if (selectedCategory !== 'mix') {
         query = query.eq('category_id', selectedCategory);
       }
@@ -147,10 +138,7 @@ const ExploreScreen: React.FC = () => {
 
       setPage(pageNumber);
 
-      /**
-       * If we received less than PAGE_SIZE,
-       * there are no more facts.
-       */
+      
       setHasMore(newFacts.length === PAGE_SIZE);
 
       setFactsLoading(false);
@@ -159,17 +147,12 @@ const ExploreScreen: React.FC = () => {
     [selectedCategory],
   );
 
-  /**
-   * Load categories once
-   */
+  
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
-  /**
-   * Whenever selected category changes,
-   * reset pagination and fetch from page 0.
-   */
+  
   useEffect(() => {
     setFacts([]);
     setPage(0);
@@ -178,9 +161,7 @@ const ExploreScreen: React.FC = () => {
     fetchFacts(0, true);
   }, [fetchFacts]);
 
-  /**
-   * Category selection
-   */
+  
   const handleSelectCategory = (categoryId: string) => {
     if (categoryId === selectedCategory) {
       return;
@@ -189,9 +170,7 @@ const ExploreScreen: React.FC = () => {
     setSelectedCategory(categoryId);
   };
 
-  /**
-   * Load next page
-   */
+  
   const handleLoadMore = () => {
     if (factsLoading || loadingMore || !hasMore) {
       return;
@@ -200,9 +179,7 @@ const ExploreScreen: React.FC = () => {
     fetchFacts(page + 1, false);
   };
 
-  /**
-   * Pull to refresh
-   */
+  
   const handleRefresh = async () => {
     setRefreshing(true);
 
@@ -215,9 +192,7 @@ const ExploreScreen: React.FC = () => {
     setRefreshing(false);
   };
 
-  /**
-   * Fact card
-   */
+  
   const renderFact = ({ item }: { item: Fact }) => {
     return (
       <View
@@ -254,9 +229,7 @@ const ExploreScreen: React.FC = () => {
     );
   };
 
-  /**
-   * Pagination loader
-   */
+  
   const renderFooter = () => {
     if (!loadingMore) {
       return null;
@@ -269,9 +242,7 @@ const ExploreScreen: React.FC = () => {
     );
   };
 
-  /**
-   * Empty state
-   */
+  
   const renderEmpty = () => {
     if (factsLoading) {
       return (
@@ -304,7 +275,7 @@ const ExploreScreen: React.FC = () => {
         },
       ]}
     >
-      {/* Header */}
+      {}
       <View style={styles.header}>
         <FontText size={28} name="bold" pureColor={colors.black}>
           Explore
@@ -320,7 +291,7 @@ const ExploreScreen: React.FC = () => {
         </FontText>
       </View>
 
-      {/* Categories */}
+      {}
       {categoriesLoading ? (
         <View style={styles.categoryLoader}>
           <ActivityIndicator color={colors.primary} />
@@ -342,7 +313,7 @@ const ExploreScreen: React.FC = () => {
         />
       )}
 
-      {/* Facts */}
+      {}
       <FlatList
         data={facts}
         keyExtractor={item => item.id}

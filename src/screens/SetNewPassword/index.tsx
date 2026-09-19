@@ -74,10 +74,7 @@ const SetNewPasswordScreen: React.FC<Props> = ({ navigation }) => {
 
     setLoading(true);
 
-    /*
-     * Step 1:
-     * Update the password using the recovery session.
-     */
+    
     const { error } = await updatePassword(newPassword);
 
     if (error) {
@@ -90,35 +87,10 @@ const SetNewPasswordScreen: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
-    /*
-     * Step 2:
-     * Password has successfully changed.
-     *
-     * FIX: Force-exit recovery mode right here,
-     * synchronously, BEFORE calling signOut().
-     *
-     * Previously the code relied entirely on the
-     * Supabase onAuthStateChange listener to flip
-     * isPasswordRecovery/session after signOut().
-     * That listener callback can be delayed or race
-     * with the earlier USER_UPDATED event, which left
-     * RootNavigation still rendering SetNewPassword
-     * even though the password update succeeded.
-     *
-     * Calling exitPasswordRecovery() here updates React
-     * state immediately, so RootNavigation's condition
-     * `isPasswordRecovery` becomes false right away.
-     */
+    
     exitPasswordRecovery();
 
-    /*
-     * Step 3:
-     * Now sign out the recovery session.
-     *
-     * signOut() also force-resets session/user locally
-     * (see updated AuthContext), so RootNavigation does
-     * not have to wait on the SIGNED_OUT event either.
-     */
+    
     const { error: signOutError } = await signOut();
 
     if (signOutError) {
@@ -134,16 +106,7 @@ const SetNewPasswordScreen: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
-    /*
-     * Step 4:
-     * signOut() sets session -> null and
-     * isPasswordRecovery -> false synchronously.
-     *
-     * RootNavigation will automatically replace
-     * the current navigator with the Login screen.
-     *
-     * DO NOT call navigation.reset() here.
-     */
+    
     setLoading(false);
   };
 

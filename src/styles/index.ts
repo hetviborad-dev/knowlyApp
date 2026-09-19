@@ -10,8 +10,8 @@ export const mediumLarge1Font = normalize(20);
 export const mediumLarge2Font = normalize(22);
 export const largeFont = normalize(24);
 export const smallestFont = normalize(10);
-// export const marginVer = wp(3) : wp(3.5);
-// export const bottomPad = wp(4) : wp(7);
+
+
 export const iconSize = wp(5);
 export const tabIcon = wp(7.5);
 
@@ -168,7 +168,7 @@ const CommonStyle = StyleSheet.create({
     borderWidth: 2,
     marginVertical: wp(1),
     height: isiPAD ? wp(8) : wp(13.5),
-    // paddingVertical: isiPAD ? wp(2.5) wp(3.5),
+    
     borderRadius: isiPAD ? wp(1) : wp(1.5),
     borderColor: colors.grey,
     backgroundColor: colors.white,

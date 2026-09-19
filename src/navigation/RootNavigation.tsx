@@ -73,13 +73,7 @@ const RootNavigation = () => {
             />
           </>
         ) : isPasswordRecovery ? (
-          /*
-           * The user has verified the password-reset OTP.
-           *
-           * Supabase has created a temporary recovery
-           * session, but the user is NOT considered
-           * normally logged in for navigation purposes.
-           */
+          
           <>
             <Stack.Screen
               name={SCREENS.SETNEWPASSWORD}

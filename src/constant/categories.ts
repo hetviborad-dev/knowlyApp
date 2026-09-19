@@ -4,7 +4,7 @@ export interface Category {
   emoji: string;
 }
 
-// TODO: Replace with data fetched from Supabase `categories` table.
+
 export const MOCK_CATEGORIES: Category[] = [
   {id: '18plus', label: '18+', emoji: '🔥'},
   {id: 'animals-plants', label: 'Animals & Plants', emoji: '🌿'},

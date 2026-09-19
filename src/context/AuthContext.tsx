@@ -41,9 +41,9 @@ interface AuthContextType {
 
   completeCategorySelection: () => void;
 
-  // NEW: lets a screen force-exit recovery mode
-  // synchronously, without waiting for a Supabase
-  // auth event to arrive.
+  
+  
+  
   exitPasswordRecovery: () => void;
 }
 
@@ -64,10 +64,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
-  /*
-   * Check whether the user has selected
-   * at least one category.
-   */
+  
   const checkCategorySelection = async (userId: string): Promise<boolean> => {
     const { data, error } = await supabase
       .from('user_categories')
@@ -84,9 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return !data || data.length === 0;
   };
 
-  /*
-   * Initialize authentication.
-   */
+  
   useEffect(() => {
     let mounted = true;
 
@@ -107,10 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
-        /*
-         * If there is no session,
-         * user must go to Login.
-         */
+        
         if (!currentSession?.user) {
           setIsPasswordRecovery(false);
           setNeedsCategorySelection(false);
@@ -119,11 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return;
         }
 
-        /*
-         * If a recovery session already exists
-         * when the app starts, keep the user on
-         * Set New Password.
-         */
+        
         if (currentSession.user && isRecoverySession(currentSession)) {
           console.log('INITIAL SESSION IS RECOVERY SESSION');
 
@@ -134,9 +122,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return;
         }
 
-        /*
-         * Normal logged-in user.
-         */
+        
         const needsSelection = await checkCategorySelection(
           currentSession.user.id,
         );
@@ -160,9 +146,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     initializeAuth();
 
-    /*
-     * Listen for authentication changes.
-     */
+    
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, newSession) => {
@@ -174,18 +158,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       console.log('AUTH SESSION:', newSession ? 'EXISTS' : 'MISSING');
 
-      /*
-       * Always update session/user.
-       */
+      
       setSession(newSession);
       setUser(newSession?.user ?? null);
 
-      /*
-       * PASSWORD_RECOVERY
-       *
-       * OTP verification created a
-       * temporary recovery session.
-       */
+      
       if (event === 'PASSWORD_RECOVERY') {
         console.log('PASSWORD RECOVERY MODE');
 
@@ -196,18 +173,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      /*
-       * USER_UPDATED
-       *
-       * updateUser() successfully changed
-       * the password.
-       *
-       * IMPORTANT:
-       * Stay in recovery mode here. The screen
-       * itself will explicitly call
-       * exitPasswordRecovery() before signing out,
-       * so we don't have to guess here.
-       */
+      
       if (event === 'USER_UPDATED') {
         console.log('PASSWORD UPDATED');
 
@@ -216,12 +182,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      /*
-       * SIGNED_OUT
-       *
-       * Completely leave recovery/login
-       * session.
-       */
+      
       if (event === 'SIGNED_OUT') {
         console.log('USER SIGNED OUT');
 
@@ -234,11 +195,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      /*
-       * SIGNED_IN
-       *
-       * Normal login.
-       */
+      
       if (event === 'SIGNED_IN') {
         console.log('NORMAL SIGN IN');
 
@@ -265,9 +222,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      /*
-       * Any event with no session.
-       */
+      
       if (!newSession?.user) {
         setIsPasswordRecovery(false);
         setNeedsCategorySelection(false);
@@ -281,12 +236,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
-  /*
-   * Detect a Supabase recovery session.
-   *
-   * Supabase recovery sessions contain
-   * recovery information in the access token.
-   */
+  
   const isRecoverySession = (currentSession: Session): boolean => {
     const accessToken = currentSession.access_token;
 
@@ -308,9 +258,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  /*
-   * LOGIN
-   */
+  
   const signIn = async (
     email: string,
     password: string,
@@ -325,9 +273,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   };
 
-  /*
-   * CREATE ACCOUNT
-   */
+  
   const signUp = async (
     fullName: string,
     email: string,
@@ -356,9 +302,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
     }
 
-    /*
-     * Email confirmation enabled.
-     */
+    
     if (!newSession) {
       setLoading(false);
 
@@ -372,9 +316,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     setIsPasswordRecovery(false);
 
-    /*
-     * New user needs category selection.
-     */
+    
     setNeedsCategorySelection(true);
 
     setLoading(false);
@@ -384,9 +326,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   };
 
-  /*
-   * LOGOUT
-   */
+  
   const signOut = async (): Promise<{
     error: string | null;
   }> => {
@@ -444,9 +384,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
     }
 
-    /*
-     * OTP must create a session.
-     */
+    
     if (!data.session) {
       return {
         error: 'OTP was verified, but no recovery session was created.',
@@ -457,9 +395,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     console.log('Recovery user:', data.user?.email ?? 'NO USER');
 
-    /*
-     * Save recovery session.
-     */
+    
     setSession(data.session);
     setUser(data.user);
 
@@ -471,9 +407,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   };
 
-  /*
-   * UPDATE PASSWORD
-   */
+  
   const updatePassword = async (
     password: string,
   ): Promise<{ error: string | null }> => {
@@ -514,23 +448,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   };
 
-  /*
-   * CATEGORY SELECTION COMPLETED
-   */
+  
   const completeCategorySelection = () => {
     setNeedsCategorySelection(false);
   };
 
-  /*
-   * EXIT PASSWORD RECOVERY
-   *
-   * Plain, synchronous local-state setter.
-   * Call this right after a successful
-   * updatePassword() and right BEFORE signOut(),
-   * so RootNavigation's isPasswordRecovery check
-   * flips immediately instead of waiting on a
-   * Supabase auth event that may be delayed.
-   */
+  
   const exitPasswordRecovery = () => {
     console.log('EXIT PASSWORD RECOVERY (forced)');
 

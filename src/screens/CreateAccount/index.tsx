@@ -86,18 +86,7 @@ const CreateAccountScreen: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
-    /*
-     * DO NOT navigate to Category here.
-     *
-     * Supabase creates the session.
-     * AuthContext updates the session.
-     * RootNavigation sees:
-     *
-     * session = true
-     * needsCategorySelection = true
-     *
-     * and automatically renders Category.
-     */
+    
   };
 
   return (

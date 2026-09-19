@@ -72,12 +72,12 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
-    // No navigation.navigate() here.
-    //
-    // Supabase creates the session.
-    // AuthContext receives the session.
-    // RootNavigation sees the session.
-    // RootNavigation automatically switches to Dashboard.
+    
+    
+    
+    
+    
+    
   };
 
   return (
