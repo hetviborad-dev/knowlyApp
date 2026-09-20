@@ -54,36 +54,41 @@ const RootNavigation = () => {
         {!session ? (
           <>
             <Stack.Screen name={SCREENS.LOGIN} component={LoginScreen} />
-
             <Stack.Screen
               name={SCREENS.SIGNUP}
               component={CreateAccountScreen}
             />
-
             <Stack.Screen
               name={SCREENS.FORGOTPASSWORD}
               component={ForgotPasswordScreen}
             />
-
             <Stack.Screen name={SCREENS.OTP} component={OTPScreen} />
-
             <Stack.Screen
               name={SCREENS.SETNEWPASSWORD}
               component={SetNewPasswordScreen}
             />
           </>
         ) : isPasswordRecovery ? (
-          
+          <Stack.Screen
+            name={SCREENS.SETNEWPASSWORD}
+            component={SetNewPasswordScreen}
+          />
+        ) : needsCategorySelection ? (
+          <Stack.Screen
+            name={SCREENS.CATEGORY}
+            component={CategoryScreen}
+            initialParams={{ mode: 'onboarding' }}
+          />
+        ) : (
           <>
+            <Stack.Screen name={SCREENS.DASHBOARD} component={TabNavigation} />
+
             <Stack.Screen
-              name={SCREENS.SETNEWPASSWORD}
-              component={SetNewPasswordScreen}
+              name={SCREENS.CATEGORY}
+              component={CategoryScreen}
+              initialParams={{ mode: 'edit' }}
             />
           </>
-        ) : needsCategorySelection ? (
-          <Stack.Screen name={SCREENS.CATEGORY} component={CategoryScreen} />
-        ) : (
-          <Stack.Screen name={SCREENS.DASHBOARD} component={TabNavigation} />
         )}
       </Stack.Navigator>
     </NavigationContainer>

@@ -4,7 +4,11 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   OTP: {email: string};
   SetNewPassword: {email: string};
-  Category: undefined;
+
+  Category: {
+    mode?: 'onboarding' | 'edit';
+  };
+
   Home: undefined;
   Dashboard: undefined;
 };

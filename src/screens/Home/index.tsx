@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 
 import {
   ActivityIndicator,
@@ -10,14 +10,22 @@ import {
   View,
 } from 'react-native';
 
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Ionicons from '@react-native-vector-icons/ionicons';
 
-import { FactCard, FontText } from '../../component';
-import { useAuth } from '../../context/AuthContext';
-import { useAppTheme } from '../../hooks/useTheme';
-import { supabase } from '../../lib/supabase';
-import { hp, normalize, wp } from '../../styles/responsiveScreen';
+import {FactCard, FontText} from '../../component';
+import {useAuth} from '../../context/AuthContext';
+import {useAppTheme} from '../../hooks/useTheme';
+import {supabase} from '../../lib/supabase';
+import {hp, normalize, wp} from '../../styles/responsiveScreen';
+import {RootStackParamList} from '../../types';
 
+
+type HomeNavigationProp = NativeStackScreenProps<
+  RootStackParamList,
+  'Dashboard'
+>['navigation'];
 interface Category {
   id: string;
   slug: string;
@@ -37,6 +45,7 @@ interface Fact {
 const HomeScreen: React.FC = () => {
   const colors = useAppTheme();
   const { user } = useAuth();
+  const navigation = useNavigation<HomeNavigationProp>();
 
   const [fact, setFact] = useState<Fact | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
@@ -205,32 +214,48 @@ const HomeScreen: React.FC = () => {
   };
 
   const renderCategoryButton = () => {
-    if (!selectedCategory) {
-      return null;
-    }
+  if (!selectedCategory) {
+    return null;
+  }
 
-    return (
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => {
-          /*
-           * Category switching will be added later.
-           */
-        }}
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() =>
+        navigation.navigate('Category', {
+          mode: 'edit',
+        })
+      }
+      accessibilityRole="button"
+      accessibilityLabel="Change topic preferences"
+      style={[
+        styles.categoryButton,
+        {
+          backgroundColor: colors.cardBg,
+          borderColor: colors.separator,
+        },
+      ]}>
+      <FontText size={normalize(23)} textAlign="center">
+        {selectedCategory.emoji}
+      </FontText>
+
+      <View
         style={[
-          styles.categoryButton,
+          styles.categoryEditBadge,
           {
-            backgroundColor: colors.cardBg,
-            borderColor: colors.separator,
+            backgroundColor: colors.primary,
+            borderColor: colors.cardBg,
           },
-        ]}
-      >
-        <FontText size={normalize(23)} textAlign="center">
-          {selectedCategory.emoji}
-        </FontText>
-      </TouchableOpacity>
-    );
-  };
+        ]}>
+        <Ionicons
+          name="pencil"
+          size={normalize(10)}
+          color={colors.white}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+};
 
   return (
     <View
@@ -448,4 +473,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  categoryEditBadge: {
+  position: 'absolute',
+  right: -wp(1),
+  bottom: -wp(1),
+  width: wp(5),
+  height: wp(5),
+  borderRadius: wp(2.5),
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderWidth: 2,
+},
 });
