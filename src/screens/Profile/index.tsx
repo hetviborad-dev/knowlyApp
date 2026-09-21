@@ -31,8 +31,8 @@ const ProfileScreen = ({ navigation }) => {
       ]}
     >
       <Header
-        title="Profile"
-        showBack={true}
+        // title="Profile"
+        showBack={false}
         containerStyle={{
           backgroundColor: colors.white,
         }}

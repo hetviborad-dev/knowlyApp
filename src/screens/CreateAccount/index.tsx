@@ -192,7 +192,7 @@ const CreateAccountScreen: React.FC<Props> = ({ navigation }) => {
 
           <View style={styles.subFooter}>
             <FontText size={normalize(13)} pureColor={colors.placeholder}>
-              Already have an account?{' '}
+              Already have an account?
             </FontText>
 
             <TouchableOpacity

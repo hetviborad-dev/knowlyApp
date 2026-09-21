@@ -188,7 +188,7 @@ const OTPScreen: React.FC<Props> = ({ navigation, route }) => {
 
         <View style={styles.resendRow}>
           <FontText size={normalize(13)} pureColor={colors.placeholder}>
-            Didn't receive code?{' '}
+            Didn't receive code?
           </FontText>
 
           <TouchableOpacity

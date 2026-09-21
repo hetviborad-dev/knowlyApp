@@ -334,7 +334,7 @@ const FactsScreen: React.FC = () => {
           isSaved={savedFactIds.has(item.id)}
           onSave={() => handleSaveFact(item)}
           onShare={() => handleShareFact(item)}
-        />{' '}
+        />
       </View>
     );
   };

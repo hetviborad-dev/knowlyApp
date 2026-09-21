@@ -151,7 +151,7 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
 
           <View style={styles.subFooter}>
             <FontText size={normalize(13)} pureColor={colors.placeholder}>
-              Remembered it?{' '}
+              Remembered it?
             </FontText>
 
             <TouchableOpacity

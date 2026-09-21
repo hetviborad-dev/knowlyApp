@@ -68,7 +68,7 @@ const FactCard: React.FC<FactCardProps> = ({
           pureColor={colors.primary}
           textAlign="center"
         >
-          {fact.category?.emoji || '✨'}{' '}
+          {fact.category?.emoji || '✨'}
           {(fact.category?.label || 'General').toUpperCase()}
         </FontText>
       </View>
@@ -88,8 +88,8 @@ const FactCard: React.FC<FactCardProps> = ({
 
       {/* Bottom actions */}
       <View style={styles.bottomActions}>
-        {' '}
-        {/* Save */}{' '}
+        
+        {/* Save */}
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={onSave}
@@ -102,23 +102,23 @@ const FactCard: React.FC<FactCardProps> = ({
             },
           ]}
         >
-          {' '}
+          
           <Ionicons
             name={isSaved ? 'bookmark' : 'bookmark-outline'}
             size={normalize(20)}
             color={isSaved ? colors.white : colors.primary}
-          />{' '}
+          />
           <FontText
             name="semibold"
             size={normalize(13)}
             pureColor={isSaved ? colors.white : colors.primary}
             pLeft={wp(2)}
           >
-            {' '}
-            {isSaved ? 'Saved' : 'Save'}{' '}
-          </FontText>{' '}
-        </TouchableOpacity>{' '}
-        {/* Share */}{' '}
+            
+            {isSaved ? 'Saved' : 'Save'}
+          </FontText>
+        </TouchableOpacity>
+        {/* Share */}
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={onShare}
@@ -128,22 +128,22 @@ const FactCard: React.FC<FactCardProps> = ({
             { backgroundColor: colors.white, borderColor: colors.white },
           ]}
         >
-          {' '}
+          
           <Ionicons
             name="share-outline"
             size={normalize(20)}
             color={colors.primary}
-          />{' '}
+          />
           <FontText
             name="semibold"
             size={normalize(13)}
             pureColor={colors.primary}
             pLeft={wp(2)}
           >
-            {' '}
-            Share{' '}
-          </FontText>{' '}
-        </TouchableOpacity>{' '}
+            
+            Share
+          </FontText>
+        </TouchableOpacity>
       </View>
     </View>
   );

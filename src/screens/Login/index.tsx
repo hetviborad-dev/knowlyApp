@@ -173,7 +173,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
           <View style={styles.subFooter}>
             <FontText size={normalize(13)} pureColor={colors.placeholder}>
-              Don't have an account?{' '}
+              Don't have an account?
             </FontText>
 
             <TouchableOpacity
