@@ -55,6 +55,22 @@ const FactsScreen: React.FC = () => {
   const [savedFactIds, setSavedFactIds] = useState<Set<string>>(new Set());
   const [savingFactId, setSavingFactId] = useState<string | null>(null);
   const insets = useSafeAreaInsets();
+
+  const shuffleArray = <T,>(array: T[]): T[] => {
+  const newArray = [...array];
+
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [newArray[i], newArray[j]] = [
+      newArray[j],
+      newArray[i],
+    ];
+  }
+
+  return newArray;
+};
+
   const fetchSelectedCategories = useCallback(async (): Promise<string[]> => {
     if (!user?.id) {
       return [];
@@ -86,24 +102,23 @@ const FactsScreen: React.FC = () => {
   }, [user?.id]);
 
   const fetchFacts = useCallback(
-    async (categoryIds: string[], pageNumber: number, replace: boolean) => {
-      if (categoryIds.length === 0) {
-        setFacts([]);
-        setHasMore(false);
-        setLoading(false);
-        setLoadingMore(false);
-        return;
-      }
+  async (categoryIds: string[], pageNumber: number, replace: boolean) => {
+    if (categoryIds.length === 0) {
+      setFacts([]);
+      setHasMore(false);
+      setLoading(false);
+      setLoadingMore(false);
+      return;
+    }
 
-      if (pageNumber === 0) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
-      }
+    if (pageNumber === 0) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
 
-      const from = pageNumber * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
+    try {
+      // Fetch all facts from all selected categories
       const { data, error } = await supabase
         .from('facts')
         .select(
@@ -121,9 +136,7 @@ const FactsScreen: React.FC = () => {
             )
           `,
         )
-        .in('category_id', categoryIds)
-        .order('created_at', { ascending: false })
-        .range(from, to);
+        .in('category_id', categoryIds);
 
       if (error) {
         console.error('Fetch facts error:', error);
@@ -138,20 +151,41 @@ const FactsScreen: React.FC = () => {
         return;
       }
 
-      const newFacts = (data ?? []) as Fact[];
+      // Shuffle ALL selected-category facts
+      const allFacts = shuffleArray((data ?? []) as Fact[]);
+
+      // Get only the facts needed for this page
+      const from = pageNumber * PAGE_SIZE;
+      const to = from + PAGE_SIZE;
+
+      const newFacts = allFacts.slice(from, to);
 
       setFacts(currentFacts =>
         replace ? newFacts : [...currentFacts, ...newFacts],
       );
 
       setPage(pageNumber);
-      setHasMore(newFacts.length === PAGE_SIZE);
+
+      // If we received fewer than PAGE_SIZE,
+      // there are no more facts to show.
+      setHasMore(to < allFacts.length);
 
       setLoading(false);
       setLoadingMore(false);
-    },
-    [],
-  );
+    } catch (error) {
+      console.error('Fetch facts unexpected error:', error);
+
+      Alert.alert(
+        'Could not load facts',
+        'Something went wrong. Please try again.',
+      );
+
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  },
+  [],
+);
 
   const loadFacts = useCallback(
     async (replace = true) => {
