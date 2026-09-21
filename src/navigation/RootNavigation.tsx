@@ -47,7 +47,6 @@ const RootNavigation = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-      // initialRouteName={SCREENS.OTP}
         screenOptions={{
           headerShown: false,
         }}

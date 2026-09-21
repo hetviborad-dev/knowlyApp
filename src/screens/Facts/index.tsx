@@ -221,10 +221,6 @@ const FactsScreen: React.FC = () => {
 
     try {
       if (currentlySaved) {
-        /*
-         * UNSAVE
-         */
-
         const { error } = await supabase
           .from('saved_facts')
           .delete()
@@ -247,21 +243,12 @@ const FactsScreen: React.FC = () => {
           return next;
         });
       } else {
-        /*
-         * SAVE
-         */
-
         const { error } = await supabase.from('saved_facts').insert({
           user_id: user.id,
           fact_id: fact.id,
         });
 
         if (error) {
-          /*
-           * This can happen if the fact was
-           * already saved somehow.
-           */
-
           if (error.code === '23505') {
             setSavedFactIds(current => {
               const next = new Set(current);

@@ -68,9 +68,6 @@ const HomeScreen: React.FC = () => {
     try {
       setLoading(true);
 
-      /*
-       * 1. Get the categories selected by the current user.
-       */
       const { data: userCategories, error: categoryError } = await supabase
         .from('user_categories')
         .select(
@@ -103,12 +100,6 @@ const HomeScreen: React.FC = () => {
         return;
       }
 
-      /*
-       * Pick the first category for the Home header.
-       *
-       * Later we can make this button switch between
-       * all categories selected by the user.
-       */
       const firstCategory = userCategories[0]?.category as Category | null;
 
       setSelectedCategory(firstCategory);
@@ -122,9 +113,6 @@ const HomeScreen: React.FC = () => {
         return;
       }
 
-      /*
-       * 2. Get the total number of facts.
-       */
       const { count, error: countError } = await supabase
         .from('facts')
         .select('id', {
@@ -149,9 +137,6 @@ const HomeScreen: React.FC = () => {
         return;
       }
 
-      /*
-       * 3. Pick a random fact.
-       */
       const randomIndex = Math.floor(Math.random() * count);
 
       const { data: factData, error: factError } = await supabase
@@ -213,12 +198,6 @@ const HomeScreen: React.FC = () => {
     }
   };
 
-  /*
-   * Home-specific fact card.
-   *
-   * This is intentionally kept inside HomeScreen instead
-   * of using the reusable FactCard component.
-   */
   const renderHomeFactCard = () => {
     if (!fact) {
       return null;
@@ -232,7 +211,6 @@ const HomeScreen: React.FC = () => {
         end={{ x: 0.25, y: 1 }}
         style={styles.homeFactCard}
       >
-        {/* Category */}
         <View style={styles.homeFactCategory}>
           <View
             style={[
@@ -257,7 +235,6 @@ const HomeScreen: React.FC = () => {
           </FontText>
         </View>
 
-        {/* Fact content */}
         <View style={styles.homeFactContent}>
           <FontText
             name="bold"
@@ -344,7 +321,6 @@ const HomeScreen: React.FC = () => {
           />
         }
       >
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.greetingContainer}>
             <FontText
@@ -370,7 +346,6 @@ const HomeScreen: React.FC = () => {
           {renderCategoryButton()}
         </View>
 
-        {/* Intro */}
         <View style={styles.intro}>
           <FontText
             name="bold"
@@ -391,7 +366,6 @@ const HomeScreen: React.FC = () => {
           </FontText>
         </View>
 
-        {/* Fact */}
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="small" color={colors.primary} />
@@ -543,7 +517,6 @@ const styles = StyleSheet.create({
 
   homeFactContent: {
     flex: 1,
-    // justifyContent: 'center',
     paddingVertical: hp(4),
   },
 

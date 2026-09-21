@@ -21,17 +21,10 @@ const TabNavigation: React.FC = () => {
       tabBar={props => <FloatingTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-
-        // The custom tab bar is absolutely positioned.
-        // This prevents React Navigation from reserving the default tab-bar height.
         tabBarStyle: {
           display: 'none',
         },
-
-        // Hide labels because the screenshot uses icons only.
         tabBarShowLabel: false,
-
-        // Prevent default tab button rendering.
         tabBarButton: () => null,
       }}
     >

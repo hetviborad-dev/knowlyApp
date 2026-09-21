@@ -31,7 +31,6 @@ const ProfileScreen = ({ navigation }) => {
       ]}
     >
       <Header
-        // title="Profile"
         showBack={false}
         containerStyle={{
           backgroundColor: colors.white,
@@ -39,8 +38,6 @@ const ProfileScreen = ({ navigation }) => {
         onBackPress={() => navigation.goBack()}
       />
 
-      {/* content now splits into a top block (avatar/name/email) and a
-          bottom-pinned logout button using space-between */}
       <View style={styles.content}>
         <View style={styles.topSection}>
           <View
