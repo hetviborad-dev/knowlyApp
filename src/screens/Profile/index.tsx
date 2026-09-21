@@ -26,7 +26,7 @@ const ProfileScreen = ({ navigation }) => {
       style={[
         styles.container,
         {
-          backgroundColor: colors.background,
+          backgroundColor: colors.white,
         },
       ]}
     >
@@ -34,7 +34,7 @@ const ProfileScreen = ({ navigation }) => {
         title="Profile"
         showBack={true}
         containerStyle={{
-          backgroundColor: colors.background,
+          backgroundColor: colors.white,
         }}
         onBackPress={() => navigation.goBack()}
       />

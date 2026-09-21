@@ -64,7 +64,7 @@ const TabNavigation = () => {
           height: hp(8.5),
           paddingTop: hp(0.8),
           paddingBottom: hp(1.2),
-          backgroundColor: colors.cardBg,
+          backgroundColor: colors.white,
           borderTopColor: colors.separator,
           borderTopWidth: 1,
           elevation: 8,
