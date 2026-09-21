@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import {
   ActivityIndicator,
@@ -10,12 +10,14 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
-import {FactCard, FontText} from '../../component';
-import {useAppTheme} from '../../hooks/useTheme';
-import {useAuth} from '../../context/AuthContext';
-import {supabase} from '../../lib/supabase';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
+import LinearGradient from 'react-native-linear-gradient';
 
+import { FactCard, FontText } from '../../component';
+import { useAppTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
+import { hp, normalize, wp } from '../../styles/responsiveScreen';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 interface FactCategory {
   id: string;
   slug: string;
@@ -36,14 +38,12 @@ const PAGE_SIZE = 10;
 
 const FactsScreen: React.FC = () => {
   const colors = useAppTheme();
-  const {user} = useAuth();
+  const { user } = useAuth();
 
-  const {height: screenHeight} = useWindowDimensions();
+  const { height: screenHeight } = useWindowDimensions();
 
   const [facts, setFacts] = useState<Fact[]>([]);
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(
-    [],
-  );
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -51,15 +51,13 @@ const FactsScreen: React.FC = () => {
 
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-
-  const fetchSelectedCategories = useCallback(async (): Promise<
-    string[]
-  > => {
+  const insets = useSafeAreaInsets();
+  const fetchSelectedCategories = useCallback(async (): Promise<string[]> => {
     if (!user?.id) {
       return [];
     }
 
-    const {data, error} = await supabase
+    const { data, error } = await supabase
       .from('user_categories')
       .select('category_id')
       .eq('user_id', user.id);
@@ -85,11 +83,7 @@ const FactsScreen: React.FC = () => {
   }, [user?.id]);
 
   const fetchFacts = useCallback(
-    async (
-      categoryIds: string[],
-      pageNumber: number,
-      replace: boolean,
-    ) => {
+    async (categoryIds: string[], pageNumber: number, replace: boolean) => {
       if (categoryIds.length === 0) {
         setFacts([]);
         setHasMore(false);
@@ -107,7 +101,7 @@ const FactsScreen: React.FC = () => {
       const from = pageNumber * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
 
-      const {data, error} = await supabase
+      const { data, error } = await supabase
         .from('facts')
         .select(
           `
@@ -125,7 +119,7 @@ const FactsScreen: React.FC = () => {
           `,
         )
         .in('category_id', categoryIds)
-        .order('created_at', {ascending: false})
+        .order('created_at', { ascending: false })
         .range(from, to);
 
       if (error) {
@@ -207,9 +201,16 @@ const FactsScreen: React.FC = () => {
     fetchFacts(selectedCategoryIds, page + 1, false);
   };
 
-  const renderFact = ({item}: {item: Fact}) => {
+  const renderFact = ({ item }: { item: Fact }) => {
     return (
-      <View style={{height: screenHeight}}>
+      <View
+        style={[
+          styles.factContainer,
+          {
+            height: screenHeight,
+          },
+        ]}
+      >
         <FactCard fact={item} />
       </View>
     );
@@ -224,14 +225,16 @@ const FactsScreen: React.FC = () => {
             {
               height: screenHeight,
             },
-          ]}>
+          ]}
+        >
           <ActivityIndicator color={colors.primary} size="small" />
 
           <FontText
             name="medium"
             size={normalize(14)}
             pureColor={colors.placeholder}
-            pTop={hp(2)}>
+            pTop={hp(2)}
+          >
             Loading your facts...
           </FontText>
         </View>
@@ -246,12 +249,14 @@ const FactsScreen: React.FC = () => {
             {
               height: screenHeight,
             },
-          ]}>
+          ]}
+        >
           <FontText
             name="bold"
             size={normalize(20)}
             pureColor={colors.black2}
-            textAlign="center">
+            textAlign="center"
+          >
             No topics selected
           </FontText>
 
@@ -261,7 +266,8 @@ const FactsScreen: React.FC = () => {
             pureColor={colors.placeholder}
             textAlign="center"
             pTop={hp(1)}
-            style={styles.emptyText}>
+            style={styles.emptyText}
+          >
             Select some topics to start discovering interesting facts.
           </FontText>
         </View>
@@ -275,12 +281,14 @@ const FactsScreen: React.FC = () => {
           {
             height: screenHeight,
           },
-        ]}>
+        ]}
+      >
         <FontText
           name="bold"
           size={normalize(20)}
           pureColor={colors.black2}
-          textAlign="center">
+          textAlign="center"
+        >
           No facts yet
         </FontText>
 
@@ -290,7 +298,8 @@ const FactsScreen: React.FC = () => {
           pureColor={colors.placeholder}
           textAlign="center"
           pTop={hp(1)}
-          style={styles.emptyText}>
+          style={styles.emptyText}
+        >
           We couldn't find any facts for your selected topics.
         </FontText>
       </View>
@@ -310,20 +319,21 @@ const FactsScreen: React.FC = () => {
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: colors.background,
-        },
-      ]}>
-
+    <LinearGradient
+      colors={['#3170a8', '#45e6de', '#FFFFFF']}
+      locations={[0, 0.5, 1]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
+    >
       <FlatList
         data={facts}
         keyExtractor={item => item.id}
         renderItem={renderFact}
         ListEmptyComponent={renderEmpty}
         ListFooterComponent={renderFooter}
+        style={styles.list}
+        contentContainerStyle={styles.listContent}
         pagingEnabled
         snapToAlignment="start"
         decelerationRate="fast"
@@ -339,10 +349,11 @@ const FactsScreen: React.FC = () => {
             refreshing={refreshing}
             onRefresh={handleRefresh}
             tintColor={colors.primary}
+            progressBackgroundColor="transparent"
           />
         }
       />
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -351,6 +362,19 @@ export default FactsScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+
+  list: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+
+  listContent: {
+    backgroundColor: 'transparent',
+  },
+
+  factContainer: {
+    backgroundColor: 'transparent',
   },
 
   topHeader: {
@@ -364,6 +388,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: wp(10),
+    backgroundColor: 'transparent',
   },
 
   emptyText: {
@@ -374,5 +399,6 @@ const styles = StyleSheet.create({
     height: hp(8),
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
 });
