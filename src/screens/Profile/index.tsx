@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useAppTheme } from '../../hooks/useTheme';
 import { normalize, wp, hp } from '../../styles/responsiveScreen';
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   const colors = useAppTheme();
   const { user, signOut } = useAuth();
 
@@ -32,45 +32,50 @@ const ProfileScreen = () => {
     >
       <Header
         title="Profile"
-        showBack={false}
+        showBack={true}
         containerStyle={{
           backgroundColor: colors.background,
         }}
+        onBackPress={() => navigation.goBack()}
       />
 
+      {/* content now splits into a top block (avatar/name/email) and a
+          bottom-pinned logout button using space-between */}
       <View style={styles.content}>
-        <View
-          style={[
-            styles.avatar,
-            {
-              backgroundColor: colors.primaryTint,
-            },
-          ]}
-        >
-          <FontText name="bold" size={normalize(28)} pureColor={colors.primary}>
-            {fullName.charAt(0).toUpperCase()}
+        <View style={styles.topSection}>
+          <View
+            style={[
+              styles.avatar,
+              {
+                backgroundColor: colors.primary,
+              },
+            ]}
+          >
+            <FontText name="bold" size={normalize(28)} pureColor={colors.white}>
+              {fullName.charAt(0).toUpperCase()}
+            </FontText>
+          </View>
+
+          <FontText
+            name="bold"
+            size={normalize(22)}
+            color="black2"
+            textAlign="center"
+            pTop={hp(1.5)}
+          >
+            {fullName}
+          </FontText>
+
+          <FontText
+            name="regular"
+            size={normalize(14)}
+            pureColor={colors.placeholder}
+            textAlign="center"
+            pTop={hp(0.5)}
+          >
+            {email}
           </FontText>
         </View>
-
-        <FontText
-          name="bold"
-          size={normalize(22)}
-          color="black2"
-          textAlign="center"
-          pTop={hp(1.5)}
-        >
-          {fullName}
-        </FontText>
-
-        <FontText
-          name="regular"
-          size={normalize(14)}
-          pureColor={colors.placeholder}
-          textAlign="center"
-          pTop={hp(0.5)}
-        >
-          {email}
-        </FontText>
 
         <TouchableOpacity
           activeOpacity={0.8}
@@ -105,8 +110,15 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: wp(6),
     paddingTop: hp(4),
+    paddingBottom: hp(3),
+  },
+
+  topSection: {
+    alignItems: 'center',
+    width: '100%',
   },
 
   avatar: {
@@ -132,6 +144,5 @@ const styles = StyleSheet.create({
     borderRadius: wp(4),
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: hp(2),
   },
 });
