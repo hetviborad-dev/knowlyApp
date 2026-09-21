@@ -47,7 +47,7 @@ const RootNavigation = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-      // initialRouteName={SCREENS.SETNEWPASSWORD}
+      // initialRouteName={SCREENS.OTP}
         screenOptions={{
           headerShown: false,
         }}

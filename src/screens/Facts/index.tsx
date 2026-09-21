@@ -5,6 +5,7 @@ import {
   Alert,
   FlatList,
   RefreshControl,
+  Share,
   StyleSheet,
   View,
   useWindowDimensions,
@@ -51,6 +52,10 @@ const FactsScreen: React.FC = () => {
 
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [savedFactIds, setSavedFactIds] =
+    useState<Set<string>>(new Set());
+    const [savingFactId, setSavingFactId] =
+    useState<string | null>(null);
   const insets = useSafeAreaInsets();
   const fetchSelectedCategories = useCallback(async (): Promise<string[]> => {
     if (!user?.id) {
@@ -201,6 +206,149 @@ const FactsScreen: React.FC = () => {
     fetchFacts(selectedCategoryIds, page + 1, false);
   };
 
+  const handleSaveFact = async (fact: Fact) => {
+    if (!user?.id) {
+      Alert.alert(
+        'Please log in',
+        'You need to be logged in to save facts.',
+      );
+
+      return;
+    }
+
+    if (savingFactId) {
+      return;
+    }
+
+    const currentlySaved =
+      savedFactIds.has(fact.id);
+
+    setSavingFactId(fact.id);
+
+    try {
+      if (currentlySaved) {
+        /*
+         * UNSAVE
+         */
+
+        const {error} = await supabase
+          .from('saved_facts')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('fact_id', fact.id);
+
+        if (error) {
+          console.error(
+            'Unsave fact error:',
+            error,
+          );
+
+          Alert.alert(
+            'Could not unsave fact',
+            'Please try again.',
+          );
+
+          return;
+        }
+
+        setSavedFactIds(current => {
+          const next = new Set(current);
+
+          next.delete(fact.id);
+
+          return next;
+        });
+      } else {
+        /*
+         * SAVE
+         */
+
+        const {error} = await supabase
+          .from('saved_facts')
+          .insert({
+            user_id: user.id,
+            fact_id: fact.id,
+          });
+
+        if (error) {
+          /*
+           * This can happen if the fact was
+           * already saved somehow.
+           */
+
+          if (error.code === '23505') {
+            setSavedFactIds(current => {
+              const next = new Set(current);
+
+              next.add(fact.id);
+
+              return next;
+            });
+
+            return;
+          }
+
+          console.error(
+            'Save fact error:',
+            error,
+          );
+
+          Alert.alert(
+            'Could not save fact',
+            'Please try again.',
+          );
+
+          return;
+        }
+
+        setSavedFactIds(current => {
+          const next = new Set(current);
+
+          next.add(fact.id);
+
+          return next;
+        });
+      }
+    } catch (error) {
+      console.error(
+        'Save fact unexpected error:',
+        error,
+      );
+
+      Alert.alert(
+        'Something went wrong',
+        'Please try again.',
+      );
+    } finally {
+      setSavingFactId(null);
+    }
+  };
+
+  const handleShareFact = async (fact: Fact) => {
+    try {
+      const category =
+        fact.category?.label
+          ? `${fact.category.emoji || '✨'} ${fact.category.label}\n\n`
+          : '';
+
+      const message =
+        `${category}` +
+        `${fact.title}\n\n` +
+        `${fact.content}\n\n` +
+        `Learn something worth knowing with Knowly.`;
+
+      await Share.share({
+        message,
+        title: fact.title,
+      });
+    } catch (error) {
+      console.error(
+        'Share fact error:',
+        error,
+      );
+    }
+  };
+
   const renderFact = ({ item }: { item: Fact }) => {
     return (
       <View
@@ -211,8 +359,16 @@ const FactsScreen: React.FC = () => {
           },
         ]}
       >
-        <FactCard fact={item} />
-      </View>
+<FactCard
+          fact={item}
+          isSaved={savedFactIds.has(item.id)}
+          onSave={() =>
+            handleSaveFact(item)
+          }
+          onShare={() =>
+            handleShareFact(item)
+          }
+        />      </View>
     );
   };
 

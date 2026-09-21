@@ -271,7 +271,7 @@ const ExploreScreen: React.FC = () => {
       style={[
         styles.safeArea,
         {
-          backgroundColor: colors.background,
+          backgroundColor: colors.white,
         },
       ]}
     >

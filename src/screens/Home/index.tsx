@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import {
   ActivityIndicator,
@@ -10,22 +10,23 @@ import {
   View,
 } from 'react-native';
 
-import {useNavigation} from '@react-navigation/native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Ionicons from '@react-native-vector-icons/ionicons';
 
-import {FactCard, FontText} from '../../component';
-import {useAuth} from '../../context/AuthContext';
-import {useAppTheme} from '../../hooks/useTheme';
-import {supabase} from '../../lib/supabase';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {RootStackParamList} from '../../types';
-
+import { FontText } from '../../component';
+import { useAuth } from '../../context/AuthContext';
+import { useAppTheme } from '../../hooks/useTheme';
+import { supabase } from '../../lib/supabase';
+import { hp, normalize, wp } from '../../styles/responsiveScreen';
+import { RootStackParamList } from '../../types';
+import LinearGradient from 'react-native-linear-gradient';
 
 type HomeNavigationProp = NativeStackScreenProps<
   RootStackParamList,
   'Dashboard'
 >['navigation'];
+
 interface Category {
   id: string;
   slug: string;
@@ -122,11 +123,7 @@ const HomeScreen: React.FC = () => {
       }
 
       /*
-       * 2. Get one random-ish fact from the user's
-       * selected categories.
-       *
-       * We use a random offset instead of loading all
-       * facts into the app.
+       * 2. Get the total number of facts.
        */
       const { count, error: countError } = await supabase
         .from('facts')
@@ -152,6 +149,9 @@ const HomeScreen: React.FC = () => {
         return;
       }
 
+      /*
+       * 3. Pick a random fact.
+       */
       const randomIndex = Math.floor(Math.random() * count);
 
       const { data: factData, error: factError } = await supabase
@@ -213,56 +213,123 @@ const HomeScreen: React.FC = () => {
     }
   };
 
+  /*
+   * Home-specific fact card.
+   *
+   * This is intentionally kept inside HomeScreen instead
+   * of using the reusable FactCard component.
+   */
+  const renderHomeFactCard = () => {
+    if (!fact) {
+      return null;
+    }
+
+    return (
+      <LinearGradient
+        colors={['#6C6A3A', '#4F5030', '#303127', '#171816', '#090A0A']}
+        locations={[0, 0.22, 0.48, 0.72, 1]}
+        start={{ x: 0.95, y: 0 }}
+        end={{ x: 0.25, y: 1 }}
+        style={styles.homeFactCard}
+      >
+        {/* Category */}
+        <View style={styles.homeFactCategory}>
+          <View
+            style={[
+              styles.homeFactCategoryIcon,
+              {
+                backgroundColor: colors.primaryTint,
+              },
+            ]}
+          >
+            <FontText size={normalize(18)} textAlign="center">
+              {fact.category?.emoji || '✨'}
+            </FontText>
+          </View>
+
+          <FontText
+            name="bold"
+            size={normalize(12)}
+            pureColor={'#F7F5EF'}
+            pLeft={wp(2)}
+          >
+            {(fact.category?.label || 'General').toUpperCase()}
+          </FontText>
+        </View>
+
+        {/* Fact content */}
+        <View style={styles.homeFactContent}>
+          <FontText
+            name="bold"
+            size={normalize(25)}
+            pureColor={'#F0EEE8'}
+            lineHeightFactor={1.15}
+          >
+            {fact.title}
+          </FontText>
+
+          <FontText
+            name="regular"
+            size={normalize(15)}
+            pureColor={'#F0EEE8'}
+            lineHeightFactor={1.5}
+            pTop={hp(2)}
+          >
+            {fact.content}
+          </FontText>
+        </View>
+      </LinearGradient>
+    );
+  };
+
   const renderCategoryButton = () => {
-  if (!selectedCategory) {
-    return null;
-  }
+    if (!selectedCategory) {
+      return null;
+    }
 
-  return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      onPress={() =>
-        navigation.navigate('Category', {
-          mode: 'edit',
-        })
-      }
-      accessibilityRole="button"
-      accessibilityLabel="Change topic preferences"
-      style={[
-        styles.categoryButton,
-        {
-          backgroundColor: colors.cardBg,
-          borderColor: colors.separator,
-        },
-      ]}>
-      <FontText size={normalize(23)} textAlign="center">
-        {selectedCategory.emoji}
-      </FontText>
-
-      <View
+    return (
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() =>
+          navigation.navigate('Category', {
+            mode: 'edit',
+          })
+        }
+        accessibilityRole="button"
+        accessibilityLabel="Change topic preferences"
         style={[
-          styles.categoryEditBadge,
+          styles.categoryButton,
           {
-            backgroundColor: colors.primary,
-            borderColor: colors.cardBg,
+            backgroundColor: colors.cardBg,
+            borderColor: colors.separator,
           },
-        ]}>
-        <Ionicons
-          name="pencil"
-          size={normalize(10)}
-          color={colors.white}
-        />
-      </View>
-    </TouchableOpacity>
-  );
-};
+        ]}
+      >
+        <FontText size={normalize(23)} textAlign="center">
+          {selectedCategory.emoji}
+        </FontText>
+
+        <View
+          style={[
+            styles.categoryEditBadge,
+            {
+              backgroundColor: colors.primary,
+              borderColor: colors.cardBg,
+            },
+          ]}
+        >
+          <Ionicons name="pencil" size={normalize(10)} color={colors.white} />
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View
       style={[
         styles.container,
         {
-          backgroundColor: colors.background,
+          backgroundColor: colors.white,
         },
       ]}
     >
@@ -281,9 +348,9 @@ const HomeScreen: React.FC = () => {
         <View style={styles.header}>
           <View style={styles.greetingContainer}>
             <FontText
-              name="regular"
+              name="semibold"
               size={normalize(14)}
-              pureColor={colors.placeholder}
+              pureColor={colors.primary}
               pBottom={hp(0.3)}
             >
               Hello,
@@ -330,9 +397,7 @@ const HomeScreen: React.FC = () => {
             <ActivityIndicator size="small" color={colors.primary} />
           </View>
         ) : fact ? (
-          <View style={styles.factContainer}>
-            <FactCard fact={fact} />
-          </View>
+          renderHomeFactCard()
         ) : (
           <View
             style={[
@@ -428,15 +493,30 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
 
+  categoryEditBadge: {
+    position: 'absolute',
+    right: -wp(1),
+    bottom: -wp(1),
+    width: wp(5),
+    height: wp(5),
+    borderRadius: wp(2.5),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+  },
+
   intro: {
     paddingTop: hp(4),
     paddingBottom: hp(2.5),
   },
 
-  factContainer: {
+  homeFactCard: {
     width: '100%',
     height: hp(58),
     borderRadius: wp(6),
+    paddingHorizontal: wp(6),
+    paddingVertical: hp(4),
+    justifyContent: 'space-between',
     overflow: 'hidden',
 
     shadowOffset: {
@@ -446,6 +526,38 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
+  },
+
+  homeFactCategory: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  homeFactCategoryIcon: {
+    width: wp(11),
+    height: wp(11),
+    borderRadius: wp(3.5),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  homeFactContent: {
+    flex: 1,
+    // justifyContent: 'center',
+    paddingVertical: hp(4),
+  },
+
+  homeFactBottom: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  learnMoreIcon: {
+    width: wp(9),
+    height: wp(9),
+    borderRadius: wp(4.5),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   loadingContainer: {
@@ -473,15 +585,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  categoryEditBadge: {
-  position: 'absolute',
-  right: -wp(1),
-  bottom: -wp(1),
-  width: wp(5),
-  height: wp(5),
-  borderRadius: wp(2.5),
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderWidth: 2,
-},
 });

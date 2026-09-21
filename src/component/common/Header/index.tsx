@@ -35,7 +35,7 @@ const Header: React.FC<HeaderProps> = ({
       {showBack ? (
         <TouchableOpacity
           onPress={onBackPress}
-          style={[styles.backBtn, { backgroundColor: '#F5F5F5' }]}
+          style={[styles.backBtn,]}
         >
           <SvgIcons.arrow
             style={{ transform: [{ rotate: '-180deg' }] }}
@@ -76,9 +76,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
   },
   backBtn: {
-    width: wp(14),
-    height: wp(14),
-    borderRadius: normalize(100),
+    width: wp(12),
+    height: wp(12),
     alignItems: 'center',
     justifyContent: 'center',
   },
