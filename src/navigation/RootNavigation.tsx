@@ -20,6 +20,7 @@ import { RootStackParamList } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 import { useAppTheme } from '../hooks/useTheme';
+import SavedFactsScreen from '../screens/SavedFacts';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -67,6 +68,7 @@ const RootNavigation = () => {
               name={SCREENS.SETNEWPASSWORD}
               component={SetNewPasswordScreen}
             />
+            
           </>
         ) : isPasswordRecovery ? (
           <Stack.Screen
@@ -88,6 +90,10 @@ const RootNavigation = () => {
               component={CategoryScreen}
               initialParams={{ mode: 'edit' }}
             />
+            <Stack.Screen
+            name={SCREENS.SAVEDFACTS}
+            component={SavedFactsScreen}
+          />
           </>
         )}
       </Stack.Navigator>

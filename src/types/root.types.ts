@@ -9,6 +9,8 @@ export type RootStackParamList = {
     mode?: 'onboarding' | 'edit';
   };
 
+  SavedFacts: undefined;
+
   Home: undefined;
   Dashboard: undefined;
 };

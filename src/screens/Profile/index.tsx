@@ -14,6 +14,7 @@ import { FontText, Header } from '../../component';
 import { useAuth } from '../../context/AuthContext';
 import { useAppTheme } from '../../hooks/useTheme';
 import { hp, normalize, wp } from '../../styles/responsiveScreen';
+import { SCREENS } from '../../constant/screens';
 
 type MenuIconName =
   | 'bookmark-outline'
@@ -284,7 +285,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               title="Saved facts"
               description="Your favourite discoveries"
               onPress={() => {
-                // Intentionally empty for now.
+                  navigation.navigate(SCREENS.SAVEDFACTS);
               }}
             />
 

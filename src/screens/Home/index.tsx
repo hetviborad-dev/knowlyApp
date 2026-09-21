@@ -52,9 +52,9 @@ const HomeScreen: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null,
   );
-
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const username =
     user?.user_metadata?.full_name || user?.user_metadata?.name || 'Explorer';
@@ -85,12 +85,10 @@ const HomeScreen: React.FC = () => {
 
       if (categoryError) {
         console.error('Fetch user categories error:', categoryError);
-
         Alert.alert(
           'Could not load your topics',
           'Please check your connection and try again.',
         );
-
         return;
       }
 
@@ -101,7 +99,6 @@ const HomeScreen: React.FC = () => {
       }
 
       const firstCategory = userCategories[0]?.category as Category | null;
-
       setSelectedCategory(firstCategory);
 
       const categoryIds = userCategories
@@ -115,20 +112,15 @@ const HomeScreen: React.FC = () => {
 
       const { count, error: countError } = await supabase
         .from('facts')
-        .select('id', {
-          count: 'exact',
-          head: true,
-        })
+        .select('id', { count: 'exact', head: true })
         .in('category_id', categoryIds);
 
       if (countError) {
         console.error('Count facts error:', countError);
-
         Alert.alert(
           'Could not load fact',
           'Please check your connection and try again.',
         );
-
         return;
       }
 
@@ -161,19 +153,17 @@ const HomeScreen: React.FC = () => {
 
       if (factError) {
         console.error('Fetch random fact error:', factError);
-
         Alert.alert(
           'Could not load fact',
           'Please check your connection and try again.',
         );
-
         return;
       }
 
       setFact((factData?.[0] as Fact) || null);
+      setSaved(false);
     } catch (error) {
       console.error('Home fact error:', error);
-
       Alert.alert('Something went wrong', 'We could not load your fact.');
     } finally {
       setLoading(false);
@@ -185,12 +175,9 @@ const HomeScreen: React.FC = () => {
   }, [fetchHomeFact]);
 
   const handleRefresh = async () => {
-    if (refreshing) {
-      return;
-    }
+    if (refreshing) return;
 
     setRefreshing(true);
-
     try {
       await fetchHomeFact();
     } finally {
@@ -198,10 +185,17 @@ const HomeScreen: React.FC = () => {
     }
   };
 
+  const handleSave = () => {
+    setSaved(previousSaved => !previousSaved);
+    // Add your Supabase save/unsave request here.
+  };
+
+  const handleShare = () => {
+    // Add your share implementation here, for example React Native Share API.
+  };
+
   const renderHomeFactCard = () => {
-    if (!fact) {
-      return null;
-    }
+    if (!fact) return null;
 
     return (
       <LinearGradient
@@ -215,9 +209,7 @@ const HomeScreen: React.FC = () => {
           <View
             style={[
               styles.homeFactCategoryIcon,
-              {
-                backgroundColor: colors.primaryTint,
-              },
+              { backgroundColor: colors.primaryTint },
             ]}
           >
             <FontText size={normalize(18)} textAlign="center">
@@ -228,7 +220,7 @@ const HomeScreen: React.FC = () => {
           <FontText
             name="bold"
             size={normalize(12)}
-            pureColor={'#F7F5EF'}
+            pureColor="#F7F5EF"
             pLeft={wp(2)}
           >
             {(fact.category?.label || 'General').toUpperCase()}
@@ -239,7 +231,7 @@ const HomeScreen: React.FC = () => {
           <FontText
             name="bold"
             size={normalize(25)}
-            pureColor={'#F0EEE8'}
+            pureColor="#F0EEE8"
             lineHeightFactor={1.15}
           >
             {fact.title}
@@ -248,30 +240,74 @@ const HomeScreen: React.FC = () => {
           <FontText
             name="regular"
             size={normalize(15)}
-            pureColor={'#F0EEE8'}
+            pureColor="#F0EEE8"
             lineHeightFactor={1.5}
             pTop={hp(2)}
           >
             {fact.content}
           </FontText>
         </View>
+
+        <View style={styles.homeFactBottom}>
+          <View />
+
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleSave}
+              accessibilityRole="button"
+              accessibilityLabel={saved ? 'Unsave fact' : 'Save fact'}
+              style={styles.actionButton}
+            >
+              <Ionicons
+                name={saved ? 'bookmark' : 'bookmark-outline'}
+                size={normalize(19)}
+                color="#F0EEE8"
+              />
+              <FontText
+                name="semibold"
+                size={normalize(12)}
+                pureColor="#F0EEE8"
+                pLeft={wp(1.3)}
+              >
+                {saved ? 'Saved' : 'Save'}
+              </FontText>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleShare}
+              accessibilityRole="button"
+              accessibilityLabel="Share fact"
+              style={styles.actionButton}
+            >
+              <Ionicons
+                name="share-social-outline"
+                size={normalize(19)}
+                color="#F0EEE8"
+              />
+              <FontText
+                name="semibold"
+                size={normalize(12)}
+                pureColor="#F0EEE8"
+                pLeft={wp(1.3)}
+              >
+                Share
+              </FontText>
+            </TouchableOpacity>
+          </View>
+        </View>
       </LinearGradient>
     );
   };
 
   const renderCategoryButton = () => {
-    if (!selectedCategory) {
-      return null;
-    }
+    if (!selectedCategory) return null;
 
     return (
       <TouchableOpacity
         activeOpacity={0.8}
-        onPress={() =>
-          navigation.navigate('Category', {
-            mode: 'edit',
-          })
-        }
+        onPress={() => navigation.navigate('Category', { mode: 'edit' })}
         accessibilityRole="button"
         accessibilityLabel="Change topic preferences"
         style={[
@@ -303,12 +339,7 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: colors.background,
-        },
-      ]}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -383,12 +414,7 @@ const HomeScreen: React.FC = () => {
             ]}
           >
             <View
-              style={[
-                styles.emptyIcon,
-                {
-                  backgroundColor: colors.primaryTint,
-                },
-              ]}
+              style={[styles.emptyIcon, { backgroundColor: colors.primaryTint }]}
             >
               <Ionicons
                 name="sparkles-outline"
@@ -457,11 +483,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 5,
     elevation: 2,
@@ -492,11 +514,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(4),
     justifyContent: 'space-between',
     overflow: 'hidden',
-
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
@@ -521,16 +539,23 @@ const styles = StyleSheet.create({
   },
 
   homeFactBottom: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-end',
   },
 
-  learnMoreIcon: {
-    width: wp(9),
-    height: wp(9),
-    borderRadius: wp(4.5),
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: wp(4),
+  },
+
+  actionButton: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: hp(4),
   },
 
   loadingContainer: {

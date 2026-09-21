@@ -1,13 +1,14 @@
 export const SCREENS = {
   LOGIN: 'Login',
-  HOME: 'Home',
-  DASHBOARD: 'Dashboard',
   SIGNUP: 'SignUp',
   FORGOTPASSWORD: 'ForgotPassword',
   OTP: 'OTP',
   SETNEWPASSWORD: 'SetNewPassword',
   CATEGORY: 'Category',
-  PROFILE: 'Profile',
+  SAVEDFACTS: 'SavedFacts',
+  HOME: 'Home',
   FACTS: 'Facts',
   EXPLORE: 'Explore',
+  PROFILE: 'Profile',
+  DASHBOARD: 'Dashboard',
 } as const;
