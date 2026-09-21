@@ -25,6 +25,7 @@ import { SvgIcons } from '../../assets';
 import { SCREENS } from '../../constant/screens';
 
 import { useAuth } from '../../context/AuthContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>;
 
@@ -78,7 +79,7 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <View
+    <SafeAreaView
       style={[
         styles.safeArea,
         {
@@ -168,7 +169,7 @@ const ForgotPasswordScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 };
 

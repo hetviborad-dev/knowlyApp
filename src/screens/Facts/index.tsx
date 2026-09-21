@@ -476,7 +476,7 @@ const FactsScreen: React.FC = () => {
         renderItem={renderFact}
         ListEmptyComponent={renderEmpty}
         ListFooterComponent={renderFooter}
-        style={styles.list}
+        style={[styles.list,{paddingTop:insets.top}]}
         contentContainerStyle={styles.listContent}
         pagingEnabled
         snapToAlignment="start"

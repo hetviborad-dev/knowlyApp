@@ -30,6 +30,7 @@ import { hp, normalize, wp } from '../../styles/responsiveScreen';
 import { RootStackParamList } from '../../types';
 
 import LinearGradient from 'react-native-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type HomeNavigationProp = NativeStackScreenProps<
   RootStackParamList,
@@ -557,7 +558,8 @@ const HomeScreen: React.FC = () => {
   };
 
   return (
-    <View
+    <SafeAreaView
+    edges={['top']}
       style={[
         styles.container,
         {
@@ -678,7 +680,7 @@ const HomeScreen: React.FC = () => {
           </View>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

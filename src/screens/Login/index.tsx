@@ -15,6 +15,7 @@ import { useAppTheme } from '../../hooks/useTheme';
 import { SvgIcons } from '../../assets';
 import { SCREENS } from '../../constant/screens';
 import { useAuth } from '../../context/AuthContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -74,7 +75,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea}>
       <Header
         showBack={false}
         containerStyle={{ backgroundColor: colors.white }}
@@ -190,7 +191,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 };
 

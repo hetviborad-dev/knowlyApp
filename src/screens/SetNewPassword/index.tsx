@@ -20,6 +20,7 @@ import { useAppTheme } from '../../hooks/useTheme';
 
 import { useAuth } from '../../context/AuthContext';
 import { SvgIcons } from '../../assets';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SetNewPassword'>;
 
@@ -108,7 +109,7 @@ const SetNewPasswordScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <View
+    <SafeAreaView
       style={[
         styles.safeArea,
         {
@@ -210,7 +211,7 @@ const SetNewPasswordScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 };
 

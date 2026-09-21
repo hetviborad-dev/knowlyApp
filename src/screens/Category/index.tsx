@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import {
   ActivityIndicator,
@@ -9,17 +9,20 @@ import {
   View,
 } from 'react-native';
 
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
-import {RootStackParamList} from '../../types';
-import {CustomButton, FontText, Header} from '../../component';
+import { RootStackParamList } from '../../types';
+import { CustomButton, FontText, Header } from '../../component';
 
-import {normalize, wp, hp} from '../../styles/responsiveScreen';
+import { normalize, wp, hp } from '../../styles/responsiveScreen';
 
-import {useAppTheme} from '../../hooks/useTheme';
-import {useAuth} from '../../context/AuthContext';
-import {supabase} from '../../lib/supabase';
+import { useAppTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Category'>;
 
@@ -44,11 +47,11 @@ const MUTED_TEXT = '#9B9A95';
 const UNSELECTED_BORDER = '#E2E1DC';
 const SELECTED_BORDER = '#FFAA0A';
 
-const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
+const CategoryScreen: React.FC<Props> = ({ navigation, route }) => {
   const colors = useAppTheme();
   const insets = useSafeAreaInsets();
 
-  const {user, completeCategorySelection} = useAuth();
+  const { user, completeCategorySelection } = useAuth();
 
   const mode: CategoryMode = route.params?.mode ?? 'onboarding';
   const isEditMode = mode === 'edit';
@@ -66,10 +69,10 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
     const loadScreen = async () => {
       setLoadingCategories(true);
 
-      const {data: categoriesData, error: categoriesError} = await supabase
+      const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
         .select('id, slug, label, emoji, created_at')
-        .order('created_at', {ascending: true});
+        .order('created_at', { ascending: true });
 
       if (!mounted) {
         return;
@@ -98,7 +101,7 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
 
       setLoadingPreferences(true);
 
-      const {data: userCategories, error: userCategoriesError} =
+      const { data: userCategories, error: userCategoriesError } =
         await supabase
           .from('user_categories')
           .select('category_id')
@@ -124,9 +127,7 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
       }
 
       setSelectedIds(
-        (userCategories ?? [])
-          .map(item => item.category_id)
-          .filter(Boolean),
+        (userCategories ?? []).map(item => item.category_id).filter(Boolean),
       );
 
       setLoadingPreferences(false);
@@ -159,7 +160,7 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
 
     try {
       if (isEditMode) {
-        const {error: deleteError} = await supabase
+        const { error: deleteError } = await supabase
           .from('user_categories')
           .delete()
           .eq('user_id', user.id);
@@ -176,7 +177,7 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
         }
       }
 
-      const {error: insertError} = await supabase
+      const { error: insertError } = await supabase
         .from('user_categories')
         .insert(
           selectedIds.map(categoryId => ({
@@ -204,10 +205,7 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
     } catch (error) {
       console.error('Save preferences unexpected error:', error);
 
-      Alert.alert(
-        'Could not save topics',
-        'Please try again in a moment.',
-      );
+      Alert.alert('Could not save topics', 'Please try again in a moment.');
     } finally {
       setSaving(false);
     }
@@ -243,7 +241,7 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
         }`;
   };
 
-  const renderCategory = ({item}: {item: SupabaseCategory}) => {
+  const renderCategory = ({ item }: { item: SupabaseCategory }) => {
     const selected = selectedIds.includes(item.id);
 
     return (
@@ -256,13 +254,15 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
   };
 
   return (
-    <View
+    <SafeAreaView
+      edges={['top']}
       style={[
         styles.container,
         {
           backgroundColor: SCREEN_BACKGROUND,
         },
-      ]}>
+      ]}
+    >
       <Header
         showBack={isEditMode}
         containerStyle={{
@@ -276,7 +276,8 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
           name="medium"
           size={normalize(13)}
           pureColor={colors.primary}
-          pBottom={hp(1)}>
+          pBottom={hp(1)}
+        >
           {isEditMode ? 'YOUR PREFERENCES' : 'STEP 1 OF 3 · TASTE'}
         </FontText>
 
@@ -285,7 +286,8 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
           size={normalize(30)}
           pureColor={DARK_TEXT}
           lineHeightFactor={1.1}
-          pBottom={hp(1)}>
+          pBottom={hp(1)}
+        >
           {screenTitle}
         </FontText>
 
@@ -293,7 +295,8 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
           name="regular"
           size={normalize(15)}
           pureColor={MUTED_TEXT}
-          lineHeightFactor={1.35}>
+          lineHeightFactor={1.35}
+        >
           {screenDescription}
         </FontText>
 
@@ -302,7 +305,8 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
             name="regular"
             size={normalize(13)}
             pureColor={MUTED_TEXT}
-            pTop={hp(0.8)}>
+            pTop={hp(0.8)}
+          >
             {categories.length} topics available.
           </FontText>
         ) : null}
@@ -316,7 +320,8 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
             name="regular"
             size={normalize(13)}
             pureColor={MUTED_TEXT}
-            pTop={hp(1.4)}>
+            pTop={hp(1.4)}
+          >
             {loadingPreferences
               ? 'Loading your topics...'
               : 'Loading topics...'}
@@ -347,7 +352,8 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
             backgroundColor: SCREEN_BACKGROUND,
             paddingBottom: Math.max(insets.bottom, hp(2)),
           },
-        ]}>
+        ]}
+      >
         <CustomButton
           title={getButtonLabel()}
           onPress={savePreferences}
@@ -356,7 +362,7 @@ const CategoryScreen: React.FC<Props> = ({navigation, route}) => {
           style={styles.saveButton}
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -379,24 +385,17 @@ const CategoryTile: React.FC<CategoryTileProps> = ({
       accessibilityState={{
         selected,
       }}
-      accessibilityLabel={`${category.label}${
-        selected ? ', selected' : ''
-      }`}
+      accessibilityLabel={`${category.label}${selected ? ', selected' : ''}`}
       style={[
         styles.tile,
         {
-          backgroundColor: selected
-            ? SELECTED_BACKGROUND
-            : CARD_BACKGROUND,
-          borderColor: selected
-            ? SELECTED_BORDER
-            : UNSELECTED_BORDER,
+          backgroundColor: selected ? SELECTED_BACKGROUND : CARD_BACKGROUND,
+          borderColor: selected ? SELECTED_BORDER : UNSELECTED_BORDER,
         },
-      ]}>
+      ]}
+    >
       <View style={styles.emojiContainer}>
-        <FontText
-          size={normalize(35)}
-          textAlign="left">
+        <FontText size={normalize(35)} textAlign="left">
           {category.emoji}
         </FontText>
       </View>
@@ -406,7 +405,8 @@ const CategoryTile: React.FC<CategoryTileProps> = ({
         size={normalize(12)}
         pureColor={selected ? SELECTED_BORDER : DARK_TEXT}
         lineHeightFactor={1.14}
-        lines={2}>
+        lines={2}
+      >
         {category.label}
       </FontText>
 
@@ -426,7 +426,8 @@ const IoniconsCheck = () => {
         name="bold"
         size={normalize(11)}
         pureColor="#FFFFFF"
-        textAlign="center">
+        textAlign="center"
+      >
         ✓
       </FontText>
     </View>

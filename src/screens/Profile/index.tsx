@@ -15,6 +15,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useAppTheme } from '../../hooks/useTheme';
 import { hp, normalize, wp } from '../../styles/responsiveScreen';
 import { SCREENS } from '../../constant/screens';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type MenuIconName =
   | 'bookmark-outline'
@@ -166,7 +167,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   }, [loggingOut, signOut]);
 
   return (
-    <View
+    <SafeAreaView
+    edges={['top']}
       style={[
         styles.container,
         {
@@ -333,7 +335,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

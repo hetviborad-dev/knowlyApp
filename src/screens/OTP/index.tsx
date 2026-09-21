@@ -21,6 +21,7 @@ import { SvgIcons } from '../../assets';
 import { SCREENS } from '../../constant/screens';
 
 import { useAuth } from '../../context/AuthContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OTP'>;
 
@@ -138,7 +139,7 @@ const OTPScreen: React.FC<Props> = ({ navigation, route }) => {
   };
 
   return (
-    <View
+    <SafeAreaView
       style={[
         styles.safeArea,
         {
@@ -232,7 +233,7 @@ const OTPScreen: React.FC<Props> = ({ navigation, route }) => {
           </FontText>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

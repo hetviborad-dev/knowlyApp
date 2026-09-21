@@ -4,7 +4,6 @@ import {
   Alert,
   FlatList,
   RefreshControl,
-  SafeAreaView,
   StyleSheet,
   View,
 } from 'react-native';
@@ -13,6 +12,7 @@ import { hp, wp } from '../../styles/responsiveScreen';
 import { CategoryTabs, FontText } from '../../component';
 import { useAppTheme } from '../../hooks/useTheme';
 import { supabase } from '../../lib/supabase';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Category {
   id: string;
@@ -268,6 +268,7 @@ const ExploreScreen: React.FC = () => {
 
   return (
     <SafeAreaView
+    edges={['top']}
       style={[
         styles.safeArea,
         {
@@ -275,7 +276,6 @@ const ExploreScreen: React.FC = () => {
         },
       ]}
     >
-      {}
       <View style={styles.header}>
         <FontText size={28} name="bold" pureColor={colors.black}>
           Explore
