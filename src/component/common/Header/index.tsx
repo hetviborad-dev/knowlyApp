@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({
         >
           <SvgIcons.arrow
             style={{ transform: [{ rotate: '-180deg' }] }}
-            color={colors.black2}
+            color={colors.primary}
           />
         </TouchableOpacity>
       ) : (

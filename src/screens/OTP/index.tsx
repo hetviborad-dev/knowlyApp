@@ -153,7 +153,9 @@ const OTPScreen: React.FC<Props> = ({ navigation, route }) => {
         }}
         onBackPress={() => navigation.goBack()}
       />
-
+      <View style={{ alignItems: 'center', marginBottom: hp(3) }}>
+        <SvgIcons.logo height={hp(10)} width={hp(10)} />
+      </View>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"

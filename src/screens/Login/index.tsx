@@ -71,13 +71,6 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       });
       return;
     }
-
-    
-    
-    
-    
-    
-    
   };
 
   return (
@@ -87,7 +80,9 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
         containerStyle={{ backgroundColor: colors.white }}
         onBackPress={() => navigation.goBack()}
       />
-
+      <View style={{ alignItems: 'center',marginBottom: hp(3) }}>
+        <SvgIcons.logo height={hp(10)} width={hp(10)} />
+      </View>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

@@ -19,6 +19,7 @@ import { normalize, wp, hp } from '../../styles/responsiveScreen';
 import { useAppTheme } from '../../hooks/useTheme';
 
 import { useAuth } from '../../context/AuthContext';
+import { SvgIcons } from '../../assets';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SetNewPassword'>;
 
@@ -74,7 +75,6 @@ const SetNewPasswordScreen: React.FC<Props> = ({ navigation }) => {
 
     setLoading(true);
 
-    
     const { error } = await updatePassword(newPassword);
 
     if (error) {
@@ -87,10 +87,8 @@ const SetNewPasswordScreen: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
-    
     exitPasswordRecovery();
 
-    
     const { error: signOutError } = await signOut();
 
     if (signOutError) {
@@ -106,7 +104,6 @@ const SetNewPasswordScreen: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
-    
     setLoading(false);
   };
 
@@ -126,7 +123,9 @@ const SetNewPasswordScreen: React.FC<Props> = ({ navigation }) => {
         }}
         onBackPress={() => navigation.goBack()}
       />
-
+      <View style={{ alignItems: 'center', marginBottom: hp(3) }}>
+        <SvgIcons.logo height={hp(10)} width={hp(10)} />
+      </View>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
