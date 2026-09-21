@@ -6,6 +6,7 @@ import _OTPInput from './common/OTPInput';
 import _CategoryCard from './common/CategoryCard';
 import _CategoryTabs from './common/CategoryTabs';
 import _FactCard from './common/FactCard';
+import _FloatingTabBar from './common/FloatingTabBar';
 
 export const FontText = _FontText;
 export const CustomInput = _CustomInput;
@@ -15,3 +16,4 @@ export const OTPInput = _OTPInput;
 export const CategoryCard = _CategoryCard;
 export const CategoryTabs = _CategoryTabs;
 export const FactCard = _FactCard;
+export const FloatingTabBar = _FloatingTabBar

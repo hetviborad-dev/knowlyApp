@@ -1,110 +1,46 @@
 import React from 'react';
-import Ionicons from '@react-native-vector-icons/ionicons';
 
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import {SCREENS} from '../constant/screens';
-import {normalize, hp, wp} from '../styles/responsiveScreen';
-import {TabParamList} from '../types';
+import { SCREENS } from '../constant/screens';
+import { TabParamList } from '../types';
 
 import HomeScreen from '../screens/Home';
 import FactsScreen from '../screens/Facts';
 import ProfileScreen from '../screens/Profile';
 import ExploreScreen from '../screens/Explore';
 
-import {useAppTheme} from '../hooks/useTheme';
+import FloatingTabBar from '../component/common/FloatingTabBar';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-type TabIconName =
-  | 'home'
-  | 'home-outline'
-  | 'bulb'
-  | 'bulb-outline'
-  | 'compass'
-  | 'compass-outline'
-  | 'person'
-  | 'person-outline';
-
-const TabNavigation = () => {
-  const colors = useAppTheme();
-
-  const getTabIcon = (
-    routeName: keyof TabParamList,
-    focused: boolean,
-  ): TabIconName => {
-    switch (routeName) {
-      case SCREENS.HOME:
-        return focused ? 'home' : 'home-outline';
-
-      case SCREENS.FACTS:
-        return focused ? 'bulb' : 'bulb-outline';
-
-      case SCREENS.EXPLORE:
-        return focused ? 'compass' : 'compass-outline';
-
-      case SCREENS.PROFILE:
-        return focused ? 'person' : 'person-outline';
-
-      default:
-        return 'home-outline';
-    }
-  };
-
+const TabNavigation: React.FC = () => {
   return (
     <Tab.Navigator
       initialRouteName={SCREENS.HOME}
-      screenOptions={({route}) => ({
+      tabBar={props => <FloatingTabBar {...props} />}
+      screenOptions={{
         headerShown: false,
 
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.placeholder,
-
+        // The custom tab bar is absolutely positioned.
+        // This prevents React Navigation from reserving the default tab-bar height.
         tabBarStyle: {
-          height: hp(8.5),
-          paddingTop: hp(0.8),
-          paddingBottom: hp(1.2),
-          backgroundColor: colors.white,
-          borderTopColor: colors.separator,
-          borderTopWidth: 1,
-          elevation: 8,
-          shadowColor: colors.black,
-          shadowOffset: {
-            width: 0,
-            height: -2,
-          },
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
+          display: 'none',
         },
 
-        tabBarLabelStyle: {
-          fontFamily: 'Nunito-Medium',
-          fontSize: normalize(11),
-          marginTop: hp(0.2),
-        },
+        // Hide labels because the screenshot uses icons only.
+        tabBarShowLabel: false,
 
-        tabBarIconStyle: {
-          marginTop: hp(0.3),
-        },
-
-        tabBarItemStyle: {
-          paddingVertical: hp(0.2),
-        },
-
-        tabBarIcon: ({focused, color}) => (
-          <Ionicons
-            name={getTabIcon(route.name, focused)}
-            size={normalize(23)}
-            color={color}
-          />
-        ),
-      })}
+        // Prevent default tab button rendering.
+        tabBarButton: () => null,
+      }}
     >
       <Tab.Screen
         name={SCREENS.HOME}
         component={HomeScreen}
         options={{
           title: 'Home',
+          tabBarAccessibilityLabel: 'Home tab',
         }}
       />
 
@@ -113,6 +49,7 @@ const TabNavigation = () => {
         component={FactsScreen}
         options={{
           title: 'Facts',
+          tabBarAccessibilityLabel: 'Facts tab',
         }}
       />
 
@@ -121,6 +58,7 @@ const TabNavigation = () => {
         component={ExploreScreen}
         options={{
           title: 'Explore',
+          tabBarAccessibilityLabel: 'Explore tab',
         }}
       />
 
@@ -129,6 +67,7 @@ const TabNavigation = () => {
         component={ProfileScreen}
         options={{
           title: 'Profile',
+          tabBarAccessibilityLabel: 'Profile tab',
         }}
       />
     </Tab.Navigator>
