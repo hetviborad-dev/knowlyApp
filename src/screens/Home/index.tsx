@@ -306,7 +306,7 @@ const HomeScreen: React.FC = () => {
       style={[
         styles.container,
         {
-          backgroundColor: colors.white,
+          backgroundColor: colors.background,
         },
       ]}
     >

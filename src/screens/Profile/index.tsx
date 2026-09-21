@@ -169,7 +169,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
       style={[
         styles.container,
         {
-          backgroundColor: PROFILE_BACKGROUND,
+          backgroundColor: colors.background,
         },
       ]}
     >
@@ -295,6 +295,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               title="Notifications"
               description="Daily reminders and updates"
               comingSoon
+              disabled={true}
               onPress={() => {
                 // Intentionally empty for now.
               }}
