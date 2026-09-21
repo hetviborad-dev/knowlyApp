@@ -1,14 +1,17 @@
 import React from 'react';
 
-import { Share, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
+import Ionicons from '@react-native-vector-icons/ionicons';
 
 import FontText from '../FontText';
 
-import { hp, normalize, wp } from '../../../styles/responsiveScreen';
-
-import { useAppTheme } from '../../../hooks/useTheme';
-
-import Ionicons from '@react-native-vector-icons/ionicons';
+import {hp, normalize, wp} from '../../../styles/responsiveScreen';
+import {useAppTheme} from '../../../hooks/useTheme';
 
 export interface FactCardData {
   id: string;
@@ -27,11 +30,8 @@ export interface FactCardData {
 
 interface FactCardProps {
   fact: FactCardData;
-
   isSaved?: boolean;
-
   onSave?: () => void;
-
   onShare?: () => void;
 }
 
@@ -44,97 +44,88 @@ const FactCard: React.FC<FactCardProps> = ({
   const colors = useAppTheme();
 
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: 'transparent',
-          borderColor: 'transparent',
-        },
-      ]}
-    >
+    <View style={styles.card}>
       <View
         style={[
           styles.categoryBadge,
           {
-            backgroundColor: 'white',
+            backgroundColor: 'rgba(255, 255, 255, 0.18)',
+            borderColor: 'rgba(255, 255, 255, 0.3)',
           },
-        ]}
-      >
+        ]}>
         <FontText
           name="bold"
           size={normalize(12)}
-          pureColor={colors.primary}
-          textAlign="center"
-        >
-          {fact.category?.emoji || '✨'}
+          pureColor={colors.white}
+          textAlign="center">
+          {fact.category?.emoji || '✨'}{' '}
           {(fact.category?.label || 'General').toUpperCase()}
         </FontText>
       </View>
 
-      <View style={styles.textContent}>
-        <FontText
-          name="bold"
-          size={normalize(35)}
-          pureColor={colors.white}
-          lineHeightFactor={1.15}
-          textAlign="left"
-        >
-          {fact.content}
-        </FontText>
-      </View>
-
-      <View style={styles.bottomActions}>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={onSave}
-          disabled={!onSave}
-          style={[
-            styles.actionButton,
-            {
-              backgroundColor: isSaved ? colors.primary : colors.white,
-              borderColor: isSaved ? colors.primary : colors.white,
-            },
-          ]}
-        >
-          <Ionicons
-            name={isSaved ? 'bookmark' : 'bookmark-outline'}
-            size={normalize(20)}
-            color={isSaved ? colors.white : colors.primary}
-          />
+      <View style={styles.contentArea}>
+        <View style={styles.textContent}>
           <FontText
-            name="semibold"
-            size={normalize(13)}
-            pureColor={isSaved ? colors.white : colors.primary}
-            pLeft={wp(2)}
-          >
-            {isSaved ? 'Saved' : 'Save'}
+            name="bold"
+            size={normalize(33)}
+            pureColor={colors.white}
+            lineHeightFactor={1.13}
+            textAlign="left">
+            {fact.content}
           </FontText>
-        </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={onShare}
-          disabled={!onShare}
-          style={[
-            styles.actionButton,
-            { backgroundColor: colors.white, borderColor: colors.white },
-          ]}
-        >
-          <Ionicons
-            name="share-outline"
-            size={normalize(20)}
-            color={colors.primary}
-          />
-          <FontText
-            name="semibold"
-            size={normalize(13)}
-            pureColor={colors.primary}
-            pLeft={wp(2)}
-          >
-            Share
-          </FontText>
-        </TouchableOpacity>
+        <View style={styles.actionRail}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={onSave}
+            disabled={!onSave}
+            accessibilityRole="button"
+            accessibilityLabel={isSaved ? 'Remove saved fact' : 'Save fact'}
+            style={styles.actionWrapper}>
+            <View
+              style={[
+                styles.actionCircle,
+                {
+                  backgroundColor: isSaved
+                    ? colors.primary
+                    : 'rgba(0, 0, 0, 0.28)',
+                  borderColor: isSaved
+                    ? colors.primary
+                    : 'rgba(255, 255, 255, 0.36)',
+                },
+              ]}>
+              <Ionicons
+                name={isSaved ? 'bookmark' : 'bookmark-outline'}
+                size={normalize(22)}
+                color={colors.white}
+              />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={onShare}
+            disabled={!onShare}
+            accessibilityRole="button"
+            accessibilityLabel="Share fact"
+            style={styles.actionWrapper}>
+            <View
+              style={[
+                styles.actionCircle,
+                {
+                  backgroundColor: 'rgba(0, 0, 0, 0.28)',
+                  borderColor: 'rgba(255, 255, 255, 0.36)',
+                },
+              ]}>
+              <Ionicons
+                name="share-outline"
+                size={normalize(23)}
+                color={colors.white}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -146,43 +137,50 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     paddingHorizontal: wp(6),
-    paddingVertical: hp(5),
-    justifyContent: 'space-between',
-    overflow: 'hidden',
-    backgroundColor: 'transparent',
+    paddingTop: hp(5),
+    paddingBottom: hp(17),
   },
 
   categoryBadge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: wp(3.5),
-    paddingVertical: hp(1),
-    borderRadius: wp(10),
-    backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderRadius: wp(10),
+    paddingHorizontal: wp(3.5),
+    paddingVertical: hp(0.9),
+  },
+
+  contentArea: {
+    flex: 1,
+    flexDirection: 'row',
+    paddingTop: hp(3),
   },
 
   textContent: {
     flex: 1,
-    paddingVertical: hp(4),
+    paddingRight: wp(3),
   },
 
-  bottomActions: {
-    flexDirection: 'row',
+  actionRail: {
+    width: wp(15),
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: wp(3),
-    bottom: hp(10),
+    justifyContent: 'flex-end',
+    alignSelf: 'flex-end',
+    paddingBottom: hp(1),
+    gap: hp(2.2),
   },
 
-  actionButton: {
-    flex: 1,
-    minHeight: hp(5.8),
-    borderRadius: wp(4),
-    borderWidth: 1,
-    flexDirection: 'row',
+  actionWrapper: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: wp(3),
+    minWidth: wp(14),
+  },
+
+  actionCircle: {
+    width: wp(12),
+    height: wp(12),
+    borderRadius: wp(6),
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
