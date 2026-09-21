@@ -52,10 +52,8 @@ const FactsScreen: React.FC = () => {
 
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const [savedFactIds, setSavedFactIds] =
-    useState<Set<string>>(new Set());
-    const [savingFactId, setSavingFactId] =
-    useState<string | null>(null);
+  const [savedFactIds, setSavedFactIds] = useState<Set<string>>(new Set());
+  const [savingFactId, setSavingFactId] = useState<string | null>(null);
   const insets = useSafeAreaInsets();
   const fetchSelectedCategories = useCallback(async (): Promise<string[]> => {
     if (!user?.id) {
@@ -208,10 +206,7 @@ const FactsScreen: React.FC = () => {
 
   const handleSaveFact = async (fact: Fact) => {
     if (!user?.id) {
-      Alert.alert(
-        'Please log in',
-        'You need to be logged in to save facts.',
-      );
+      Alert.alert('Please log in', 'You need to be logged in to save facts.');
 
       return;
     }
@@ -220,8 +215,7 @@ const FactsScreen: React.FC = () => {
       return;
     }
 
-    const currentlySaved =
-      savedFactIds.has(fact.id);
+    const currentlySaved = savedFactIds.has(fact.id);
 
     setSavingFactId(fact.id);
 
@@ -231,22 +225,16 @@ const FactsScreen: React.FC = () => {
          * UNSAVE
          */
 
-        const {error} = await supabase
+        const { error } = await supabase
           .from('saved_facts')
           .delete()
           .eq('user_id', user.id)
           .eq('fact_id', fact.id);
 
         if (error) {
-          console.error(
-            'Unsave fact error:',
-            error,
-          );
+          console.error('Unsave fact error:', error);
 
-          Alert.alert(
-            'Could not unsave fact',
-            'Please try again.',
-          );
+          Alert.alert('Could not unsave fact', 'Please try again.');
 
           return;
         }
@@ -263,12 +251,10 @@ const FactsScreen: React.FC = () => {
          * SAVE
          */
 
-        const {error} = await supabase
-          .from('saved_facts')
-          .insert({
-            user_id: user.id,
-            fact_id: fact.id,
-          });
+        const { error } = await supabase.from('saved_facts').insert({
+          user_id: user.id,
+          fact_id: fact.id,
+        });
 
         if (error) {
           /*
@@ -288,15 +274,9 @@ const FactsScreen: React.FC = () => {
             return;
           }
 
-          console.error(
-            'Save fact error:',
-            error,
-          );
+          console.error('Save fact error:', error);
 
-          Alert.alert(
-            'Could not save fact',
-            'Please try again.',
-          );
+          Alert.alert('Could not save fact', 'Please try again.');
 
           return;
         }
@@ -310,15 +290,9 @@ const FactsScreen: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error(
-        'Save fact unexpected error:',
-        error,
-      );
+      console.error('Save fact unexpected error:', error);
 
-      Alert.alert(
-        'Something went wrong',
-        'Please try again.',
-      );
+      Alert.alert('Something went wrong', 'Please try again.');
     } finally {
       setSavingFactId(null);
     }
@@ -326,10 +300,9 @@ const FactsScreen: React.FC = () => {
 
   const handleShareFact = async (fact: Fact) => {
     try {
-      const category =
-        fact.category?.label
-          ? `${fact.category.emoji || '✨'} ${fact.category.label}\n\n`
-          : '';
+      const category = fact.category?.label
+        ? `${fact.category.emoji || '✨'} ${fact.category.label}\n\n`
+        : '';
 
       const message =
         `${category}` +
@@ -342,10 +315,7 @@ const FactsScreen: React.FC = () => {
         title: fact.title,
       });
     } catch (error) {
-      console.error(
-        'Share fact error:',
-        error,
-      );
+      console.error('Share fact error:', error);
     }
   };
 
@@ -359,16 +329,13 @@ const FactsScreen: React.FC = () => {
           },
         ]}
       >
-<FactCard
+        <FactCard
           fact={item}
           isSaved={savedFactIds.has(item.id)}
-          onSave={() =>
-            handleSaveFact(item)
-          }
-          onShare={() =>
-            handleShareFact(item)
-          }
-        />      </View>
+          onSave={() => handleSaveFact(item)}
+          onShare={() => handleShareFact(item)}
+        />{' '}
+      </View>
     );
   };
 
@@ -476,7 +443,7 @@ const FactsScreen: React.FC = () => {
 
   return (
     <LinearGradient
-      colors={['#3170a8', '#45e6de', '#FFFFFF']}
+      colors={['#3170a8', '#e6e380', '#e5d7cc']}
       locations={[0, 0.5, 1]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}

@@ -44,9 +44,6 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
         lineHeightFactor={1.2}>
         {label}
       </FontText>
-      {selected ? (
-        <View style={[styles.checkDot, {backgroundColor: colors.primary}]} />
-      ) : null}
     </TouchableOpacity>
   );
 };
