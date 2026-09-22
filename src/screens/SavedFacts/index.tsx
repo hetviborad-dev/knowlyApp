@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import {
   ActivityIndicator,
@@ -12,14 +12,15 @@ import {
 } from 'react-native';
 
 import Ionicons from '@react-native-vector-icons/ionicons';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import {FontText, Header} from '../../component';
-import {useAuth} from '../../context/AuthContext';
-import {useAppTheme} from '../../hooks/useTheme';
-import {supabase} from '../../lib/supabase';
-import {hp, normalize, wp} from '../../styles/responsiveScreen';
-import {RootStackParamList} from '../../types';
+import { FontText, Header } from '../../component';
+import { useAuth } from '../../context/AuthContext';
+import { useAppTheme } from '../../hooks/useTheme';
+import { supabase } from '../../lib/supabase';
+import { hp, normalize, wp } from '../../styles/responsiveScreen';
+import { RootStackParamList } from '../../types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SavedFacts'>;
 
@@ -52,9 +53,9 @@ const MUTED_TEXT = '#929088';
 const SOFT_PRIMARY = '#FFF0D1';
 const BORDER_COLOR = '#ECE9E1';
 
-const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
+const SavedFactsScreen: React.FC<Props> = ({ navigation }) => {
   const colors = useAppTheme();
-  const {user} = useAuth();
+  const { user } = useAuth();
 
   const [facts, setFacts] = useState<SavedFact[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,7 +81,7 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
 
     setLoading(true);
 
-    const {data, error} = await supabase
+    const { data, error } = await supabase
       .from('saved_facts')
       .select(
         `
@@ -102,7 +103,7 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
         `,
       )
       .eq('user_id', user.id)
-      .order('created_at', {ascending: false});
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Fetch saved facts error:', error);
@@ -151,7 +152,7 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
 
     setRemovingFactId(fact.id);
 
-    const {error} = await supabase
+    const { error } = await supabase
       .from('saved_facts')
       .delete()
       .eq('user_id', user.id)
@@ -160,10 +161,7 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
     if (error) {
       console.error('Unsave fact error:', error);
 
-      Alert.alert(
-        'Could not remove fact',
-        'Please try again in a moment.',
-      );
+      Alert.alert('Could not remove fact', 'Please try again in a moment.');
 
       setRemovingFactId(null);
       return;
@@ -204,7 +202,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
           name="medium"
           size={normalize(12)}
           pureColor={colors.primary}
-          pBottom={hp(0.8)}>
+          pBottom={hp(0.8)}
+        >
           YOUR COLLECTION
         </FontText>
 
@@ -212,7 +211,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
           name="bold"
           size={normalize(30)}
           pureColor={DARK_TEXT}
-          lineHeightFactor={1.1}>
+          lineHeightFactor={1.1}
+        >
           Saved facts
         </FontText>
 
@@ -221,7 +221,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
           size={normalize(14)}
           pureColor={MUTED_TEXT}
           lineHeightFactor={1.4}
-          pTop={hp(0.8)}>
+          pTop={hp(0.8)}
+        >
           Keep the discoveries you want to remember.
         </FontText>
 
@@ -237,7 +238,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
               name="bold"
               size={normalize(12)}
               pureColor={colors.primary}
-              pLeft={wp(1.3)}>
+              pLeft={wp(1.3)}
+            >
               {facts.length} {facts.length === 1 ? 'saved fact' : 'saved facts'}
             </FontText>
           </View>
@@ -250,17 +252,15 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
     if (loading) {
       return (
         <View style={styles.emptyState}>
-          <ActivityIndicator
-            size="small"
-            color={colors.primary}
-          />
+          <ActivityIndicator size="small" color={colors.primary} />
 
           <FontText
             name="medium"
             size={normalize(14)}
             pureColor={MUTED_TEXT}
             textAlign="center"
-            pTop={hp(1.5)}>
+            pTop={hp(1.5)}
+          >
             Loading your saved facts...
           </FontText>
         </View>
@@ -275,7 +275,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
             {
               backgroundColor: SOFT_PRIMARY,
             },
-          ]}>
+          ]}
+        >
           <Ionicons
             name="bookmark-outline"
             size={normalize(31)}
@@ -288,7 +289,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
           size={normalize(21)}
           pureColor={DARK_TEXT}
           textAlign="center"
-          pTop={hp(2)}>
+          pTop={hp(2)}
+        >
           Nothing saved yet
         </FontText>
 
@@ -299,7 +301,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
           textAlign="center"
           lineHeightFactor={1.45}
           pTop={hp(0.8)}
-          style={styles.emptyDescription}>
+          style={styles.emptyDescription}
+        >
           When you find a fact you love, tap the bookmark icon to keep it here.
         </FontText>
       </View>
@@ -307,13 +310,14 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
   };
 
   return (
-    <View
+    <SafeAreaView
       style={[
         styles.container,
         {
           backgroundColor: SCREEN_BACKGROUND,
         },
-      ]}>
+      ]}
+    >
       <Header
         title="Saved facts"
         showBack
@@ -323,7 +327,7 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
         onBackPress={() => navigation.goBack()}
       />
 
-        {renderHeader()}
+      {renderHeader()}
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
@@ -336,8 +340,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
             onRefresh={handleRefresh}
             tintColor={colors.primary}
           />
-        }>
-
+        }
+      >
         {facts.length === 0 ? (
           renderEmptyState()
         ) : (
@@ -355,7 +359,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
                       borderColor: BORDER_COLOR,
                     },
                     isRemoving && styles.removingCard,
-                  ]}>
+                  ]}
+                >
                   <View style={styles.factCardHeader}>
                     <View style={styles.categoryInfo}>
                       <View
@@ -364,7 +369,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
                           {
                             backgroundColor: SOFT_PRIMARY,
                           },
-                        ]}>
+                        ]}
+                      >
                         <FontText size={normalize(17)}>
                           {fact.category?.emoji || '✨'}
                         </FontText>
@@ -374,7 +380,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
                         name="bold"
                         size={normalize(11)}
                         pureColor={colors.primary}
-                        pLeft={wp(2)}>
+                        pLeft={wp(2)}
+                      >
                         {(fact.category?.label || 'GENERAL').toUpperCase()}
                       </FontText>
                     </View>
@@ -385,7 +392,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
                       disabled={isRemoving}
                       accessibilityRole="button"
                       accessibilityLabel="Remove saved fact"
-                      style={styles.iconButton}>
+                      style={styles.iconButton}
+                    >
                       {isRemoving ? (
                         <ActivityIndicator
                           size="small"
@@ -407,7 +415,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
                       size={normalize(20)}
                       pureColor={DARK_TEXT}
                       lineHeightFactor={1.2}
-                      pTop={hp(1.8)}>
+                      pTop={hp(1.8)}
+                    >
                       {fact.title}
                     </FontText>
                   ) : null}
@@ -417,7 +426,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
                     size={normalize(15)}
                     pureColor="#55544E"
                     lineHeightFactor={1.48}
-                    pTop={hp(1)}>
+                    pTop={hp(1)}
+                  >
                     {fact.content}
                   </FontText>
 
@@ -427,7 +437,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
                       onPress={() => handleShare(fact)}
                       style={styles.shareButton}
                       accessibilityRole="button"
-                      accessibilityLabel="Share saved fact">
+                      accessibilityLabel="Share saved fact"
+                    >
                       <Ionicons
                         name="share-outline"
                         size={normalize(18)}
@@ -438,7 +449,8 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
                         name="semibold"
                         size={normalize(13)}
                         pureColor={colors.primary}
-                        pLeft={wp(1.5)}>
+                        pLeft={wp(1.5)}
+                      >
                         Share
                       </FontText>
                     </TouchableOpacity>
@@ -449,7 +461,7 @@ const SavedFactsScreen: React.FC<Props> = ({navigation}) => {
           </View>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
