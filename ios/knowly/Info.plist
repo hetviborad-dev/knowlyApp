@@ -43,6 +43,7 @@
 		<string>NunitoSans-Regular.ttf</string>
 		<string>NunitoSans-Bold.ttf</string>
 		<string>NunitoSans-SemiBold.ttf</string>
+		<string>Ionicons.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
