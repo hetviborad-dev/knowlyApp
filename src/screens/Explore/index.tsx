@@ -306,6 +306,7 @@ const ExploreScreen: React.FC = () => {
             ...categories.map(category => ({
               id: category.id,
               name: category.label,
+              emoji: category.emoji
             })),
           ]}
           selectedCategory={selectedCategory}

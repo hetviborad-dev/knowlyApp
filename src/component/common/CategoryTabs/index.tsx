@@ -13,6 +13,7 @@ import {hp, wp} from '../../../styles/responsiveScreen';
 interface Category {
   id: string;
   name: string;
+  emoji: any;
 }
 
 interface CategoryTabsProps {
@@ -53,12 +54,14 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
                     : colors.separator,
                 },
               ]}>
+
               <FontText
                 size={14}
                 name={isSelected ? 'bold' : 'regular'}
                 pureColor={
                   isSelected ? colors.white : colors.black
                 }>
+                {category?.emoji || '✨'}{' '}
                 {category.name}
               </FontText>
             </TouchableOpacity>

@@ -377,6 +377,8 @@ const CategoryTile: React.FC<CategoryTileProps> = ({
   selected,
   onPress,
 }) => {
+  console.log('category: w', category);
+
   return (
     <TouchableOpacity
       activeOpacity={0.82}

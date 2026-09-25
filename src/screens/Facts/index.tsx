@@ -1,5 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-
+import React, {useCallback, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -11,10 +10,9 @@ import {
   useWindowDimensions,
   ViewToken,
 } from 'react-native';
-
+import {useFocusEffect} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-
 import {FactCard, FontText} from '../../component';
 import {useAppTheme} from '../../hooks/useTheme';
 import {useAuth} from '../../context/AuthContext';
@@ -62,6 +60,9 @@ const FactsScreen: React.FC = () => {
   const [savedFactIds, setSavedFactIds] = useState<Set<string>>(new Set());
   const [savingFactId, setSavingFactId] = useState<string | null>(null);
   const [showingOldFacts, setShowingOldFacts] = useState(false);
+
+  // ✅ Track if user has manually scrolled
+  const hasUserScrolledRef = useRef(false);
 
   // Facts already placed in this FlatList session.
   const feedFactIdsRef = useRef<Set<string>>(new Set());
@@ -300,13 +301,13 @@ const FactsScreen: React.FC = () => {
           return;
         }
 
-        // On full refresh, reload everything once.
         if (replace) {
           feedFactIdsRef.current = new Set();
           markedViewedIdsRef.current = new Set();
           viewedFactIdsRef.current = new Set();
           allFactsCacheRef.current = [];
           setShowingOldFacts(false);
+          hasUserScrolledRef.current = false;
 
           const [allFacts, viewedSet] = await Promise.all([
             fetchAllFactsForCategories(categoryIds),
@@ -319,10 +320,8 @@ const FactsScreen: React.FC = () => {
 
         const allFacts = allFactsCacheRef.current;
         const viewedSet = viewedFactIdsRef.current;
-
         const excludedIds = feedFactIdsRef.current;
 
-        // Only unseen facts for this user in this session.
         const unseenFacts = allFacts.filter(
           fact =>
             !viewedSet.has(fact.id) &&
@@ -334,7 +333,6 @@ const FactsScreen: React.FC = () => {
         let nextFacts = nextUnseenFacts;
         let usingOldFacts = false;
 
-        // If we cannot fill a page with unseen facts, use oldest viewed.
         if (nextFacts.length < PAGE_SIZE) {
           const usedIds = new Set([
             ...excludedIds,
@@ -388,34 +386,41 @@ const FactsScreen: React.FC = () => {
     ],
   );
 
-  // Run once on mount / user change.
-  useEffect(() => {
-    let mounted = true;
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
 
-    const init = async () => {
-      if (!user?.id) {
-        setLoading(false);
-        return;
-      }
+      const refreshOnFocus = async () => {
+        if (!user?.id) {
+          setLoading(false);
+          return;
+        }
 
-      try {
-        await fetchSavedFactIds();
-        if (!mounted) return;
+        try {
+          feedFactIdsRef.current = new Set();
+          markedViewedIdsRef.current = new Set();
+          viewedFactIdsRef.current = new Set();
+          allFactsCacheRef.current = [];
+          hasUserScrolledRef.current = false;
 
-        await loadFacts(true);
-      } catch (err) {
-        console.error('Init facts error:', err);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
+          await fetchSavedFactIds();
+          if (!mounted) return;
 
-    void init();
+          await loadFacts(true);
+        } catch (err) {
+          console.error('Focus refresh error:', err);
+        } finally {
+          if (mounted) setLoading(false);
+        }
+      };
 
-    return () => {
-      mounted = false;
-    };
-  }, [user?.id]); // do NOT depend on loadFacts here
+      void refreshOnFocus();
+
+      return () => {
+        mounted = false;
+      };
+    }, []),
+  );
 
   const handleRefresh = async () => {
     if (refreshing) {
@@ -425,6 +430,7 @@ const FactsScreen: React.FC = () => {
     setRefreshing(true);
 
     try {
+      hasUserScrolledRef.current = false;
       await loadFacts(true);
       await fetchSavedFactIds();
     } finally {
@@ -433,16 +439,21 @@ const FactsScreen: React.FC = () => {
   };
 
   const handleLoadMore = () => {
-    if (
-      loading ||
-      loadingMore ||
-      !hasMore ||
-      selectedCategoryIds.length === 0
-    ) {
+    // ✅ ONLY load more if user has actually scrolled
+    if (!hasUserScrolledRef.current) {
+      return;
+    }
+
+    if (loading || loadingMore || !hasMore || selectedCategoryIds.length === 0) {
       return;
     }
 
     void loadFacts(false);
+  };
+
+  const handleScrollBeginDrag = () => {
+    // ✅ Mark that user has started scrolling
+    hasUserScrolledRef.current = true;
   };
 
   const handleSaveFact = async (fact: Fact) => {
@@ -533,6 +544,7 @@ const FactsScreen: React.FC = () => {
         item => item.isViewable && item.item?.id,
       );
 
+      // ✅ Simple: just mark as viewed, no auto-scroll
       if (visibleFact?.item?.id) {
         void markFactAsViewed(visibleFact.item.id);
       }
@@ -540,8 +552,8 @@ const FactsScreen: React.FC = () => {
   ).current;
 
   const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 70,
-    minimumViewTime: 500,
+    itemVisiblePercentThreshold: 50,
+    minimumViewTime: 1000,
   }).current;
 
   const renderFact = ({item}: {item: Fact}) => {
@@ -657,7 +669,7 @@ const FactsScreen: React.FC = () => {
       start={{x: 0, y: 0}}
       end={{x: 1, y: 1}}
       style={styles.container}>
-      {/* {renderHeader()} */}
+      {renderHeader()}
 
       <FlatList
         data={facts}
@@ -672,13 +684,14 @@ const FactsScreen: React.FC = () => {
         decelerationRate="fast"
         showsVerticalScrollIndicator={false}
         onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.7}
+        onEndReachedThreshold={0.5}
+        onScrollBeginDrag={handleScrollBeginDrag}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
         removeClippedSubviews
         windowSize={5}
-        initialNumToRender={3}
-        maxToRenderPerBatch={3}
+        initialNumToRender={2}
+        maxToRenderPerBatch={2}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -698,20 +711,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-
   list: {
     flex: 1,
     backgroundColor: 'transparent',
   },
-
   listContent: {
     backgroundColor: 'transparent',
   },
-
   factContainer: {
     backgroundColor: 'transparent',
   },
-
   replayNotice: {
     position: 'absolute',
     top: hp(6),
@@ -723,7 +732,6 @@ const styles = StyleSheet.create({
     borderRadius: wp(4),
     backgroundColor: 'rgba(255, 240, 209, 0.94)',
   },
-
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -731,11 +739,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(10),
     backgroundColor: 'transparent',
   },
-
   emptyText: {
     maxWidth: wp(75),
   },
-
   footerLoader: {
     height: hp(8),
     alignItems: 'center',
