@@ -565,7 +565,7 @@ const FactsScreen: React.FC = () => {
           <FontText
             name="medium"
             size={normalize(14)}
-            pureColor={colors.placeholder}
+            pureColor={colors.white}
             pTop={hp(2)}>
             Loading your facts...
           </FontText>

@@ -60,7 +60,7 @@ const ExploreScreen: React.FC = () => {
     const { data, error } = await supabase
       .from('categories')
       .select('id, slug, label, emoji')
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: true }).eq('is_visible', true);
 
     if (error) {
       console.error('Fetch categories error:', error);

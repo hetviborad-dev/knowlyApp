@@ -72,7 +72,7 @@ const CategoryScreen: React.FC<Props> = ({ navigation, route }) => {
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
         .select('id, slug, label, emoji, created_at')
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: true }).eq('is_visible', true);
 
       if (!mounted) {
         return;
@@ -459,7 +459,8 @@ const styles = StyleSheet.create({
   },
 
   columnWrapper: {
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
+    gap: wp(3),
     marginBottom: wp(3.2),
   },
 

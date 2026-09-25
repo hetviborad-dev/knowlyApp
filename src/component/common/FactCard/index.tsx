@@ -42,6 +42,7 @@ const FactCard: React.FC<FactCardProps> = ({
   onShare,
 }) => {
   const colors = useAppTheme();
+  console.log('fact: ', fact);
 
   return (
     <View style={styles.card}>
@@ -55,7 +56,7 @@ const FactCard: React.FC<FactCardProps> = ({
         ]}>
         <FontText
           name="bold"
-          size={normalize(12)}
+          size={normalize(10)}
           pureColor={colors.white}
           textAlign="center">
           {fact.category?.emoji || '✨'}{' '}
