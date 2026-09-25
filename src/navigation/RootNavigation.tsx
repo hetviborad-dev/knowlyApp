@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { SCREENS } from '../constant/screens';
+import BootSplash from "react-native-bootsplash";
 
 import TabNavigation from './TabNavigation';
 
@@ -46,7 +47,9 @@ const RootNavigation = () => {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer onReady={() => {
+      BootSplash.hide();
+    }}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
