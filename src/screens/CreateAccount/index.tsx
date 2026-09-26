@@ -17,6 +17,7 @@ import { useAppTheme } from '../../hooks/useTheme';
 import { SvgIcons } from '../../assets';
 import { SCREENS } from '../../constant/screens';
 import { useAuth } from '../../context/AuthContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 
@@ -88,7 +89,7 @@ const CreateAccountScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.safeArea, { backgroundColor: colors.white }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.white }]}>
       <Header
         showBack={false}
         containerStyle={{
@@ -209,7 +210,7 @@ const CreateAccountScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -240,7 +241,7 @@ const styles = StyleSheet.create({
 
   footer: {
     paddingHorizontal: wp(6),
-    paddingBottom: hp(2),
+    paddingBottom: hp(0),
   },
 
   subFooter: {
