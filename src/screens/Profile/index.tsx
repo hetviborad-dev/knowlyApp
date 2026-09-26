@@ -20,7 +20,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 type MenuIconName =
   | 'bookmark-outline'
   | 'notifications-outline'
-  | 'log-out-outline';
+  | 'log-out-outline'
+  | 'trash-outline';
 
 interface ProfileScreenProps {
   navigation: {
@@ -328,6 +329,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               iconName="log-out-outline"
               title={loggingOut ? 'Logging out...' : 'Log out'}
               description="Sign out from this device"
+              destructive
+              disabled={loggingOut}
+              onPress={handleLogout}
+            />
+            <ProfileRow
+              iconName="trash-outline"
+              title="Delete Account"
+              description="Permanently delete your account"
               destructive
               disabled={loggingOut}
               onPress={handleLogout}
