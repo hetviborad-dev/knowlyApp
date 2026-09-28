@@ -71,7 +71,6 @@ const RootNavigation = () => {
               name={SCREENS.SETNEWPASSWORD}
               component={SetNewPasswordScreen}
             />
-            
           </>
         ) : isPasswordRecovery ? (
           <Stack.Screen
@@ -79,11 +78,14 @@ const RootNavigation = () => {
             component={SetNewPasswordScreen}
           />
         ) : needsCategorySelection ? (
-          <Stack.Screen
-            name={SCREENS.CATEGORY}
-            component={CategoryScreen}
-            initialParams={{ mode: 'onboarding' }}
-          />
+          <>
+            <Stack.Screen
+              name={SCREENS.CATEGORY}
+              component={CategoryScreen}
+              initialParams={{ mode: 'onboarding' }}
+            />
+            <Stack.Screen name={SCREENS.DASHBOARD} component={TabNavigation} />
+          </>
         ) : (
           <>
             <Stack.Screen name={SCREENS.DASHBOARD} component={TabNavigation} />
@@ -94,9 +96,9 @@ const RootNavigation = () => {
               initialParams={{ mode: 'edit' }}
             />
             <Stack.Screen
-            name={SCREENS.SAVEDFACTS}
-            component={SavedFactsScreen}
-          />
+              name={SCREENS.SAVEDFACTS}
+              component={SavedFactsScreen}
+            />
           </>
         )}
       </Stack.Navigator>

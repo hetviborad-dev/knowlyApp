@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
 
   footer: {
     paddingHorizontal: wp(6),
-    paddingBottom: hp(2),
+    // paddingBottom: hp(2),
   },
 
   subFooter: {

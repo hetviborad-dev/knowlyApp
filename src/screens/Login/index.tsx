@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types';
 import { FontText, CustomInput, CustomButton, Header } from '../../component';
@@ -16,6 +9,7 @@ import { SvgIcons } from '../../assets';
 import { SCREENS } from '../../constant/screens';
 import { useAuth } from '../../context/AuthContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -81,116 +75,111 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
         containerStyle={{ backgroundColor: colors.white }}
         onBackPress={() => navigation.goBack()}
       />
-      <View style={{ alignItems: 'center',marginBottom: hp(3) }}>
+      <View style={{ alignItems: 'center', marginBottom: hp(3) }}>
         <SvgIcons.logo height={hp(10)} width={hp(10)} />
       </View>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      <KeyboardAwareScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        enableOnAndroid={true}
+        enableAutomaticScroll={true}
+        extraScrollHeight={hp(6)}
+        extraHeight={hp(6)}
+        keyboardOpeningTime={0}
+        resetScrollToCoords={{
+          x: 0,
+          y: 0,
+        }}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+        <FontText
+          name="bold"
+          size={normalize(28)}
+          color="black2"
+          pBottom={hp(1)}
         >
-          <FontText
-            name="bold"
-            size={normalize(28)}
-            color="black2"
-            pBottom={hp(1)}
-          >
-            Welcome back
+          Welcome back
+        </FontText>
+
+        <FontText
+          name="regular"
+          size={normalize(14)}
+          pureColor={colors.placeholder}
+          pBottom={hp(3)}
+        >
+          Log in to continue your daily discovery.
+        </FontText>
+
+        <CustomInput
+          label="Email address"
+          value={email}
+          onChangeText={text => {
+            setEmail(text);
+            if (errors.email || errors.general) {
+              setErrors({});
+            }
+          }}
+          placeholder="hello@knowly.com"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          error={errors.email}
+        />
+
+        <CustomInput
+          label="Password"
+          value={password}
+          onChangeText={text => {
+            setPassword(text);
+            if (errors.password || errors.general) {
+              setErrors({});
+            }
+          }}
+          placeholder="Enter your password"
+          secureTextEntry
+          autoCapitalize="none"
+          error={errors.password}
+        />
+
+        <TouchableOpacity
+          style={styles.forgotWrap}
+          onPress={() => navigation.navigate(SCREENS.FORGOTPASSWORD)}
+        >
+          <FontText name="medium" size={normalize(13)} pureColor={colors.link}>
+            Forgot password?
+          </FontText>
+        </TouchableOpacity>
+
+        {errors.general ? (
+          <View style={styles.generalError}>
+            <FontText size={normalize(12)} pureColor={colors.error || 'red'}>
+              {errors.general}
+            </FontText>
+          </View>
+        ) : null}
+      </KeyboardAwareScrollView>
+
+      <View style={styles.footer}>
+        <CustomButton
+          title="Log In"
+          onPress={handleLogin}
+          loading={loading}
+          style={styles.loginBtn}
+          rightIcon={<SvgIcons.arrow color={colors.white} />}
+        />
+
+        <View style={styles.subFooter}>
+          <FontText size={normalize(13)} pureColor={colors.placeholder}>
+            Don't have an account?
           </FontText>
 
-          <FontText
-            name="regular"
-            size={normalize(14)}
-            pureColor={colors.placeholder}
-            pBottom={hp(3)}
-          >
-            Log in to continue your daily discovery.
-          </FontText>
-
-          <CustomInput
-            label="Email address"
-            value={email}
-            onChangeText={text => {
-              setEmail(text);
-              if (errors.email || errors.general) {
-                setErrors({});
-              }
-            }}
-            placeholder="hello@knowly.app"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            error={errors.email}
-          />
-
-          <CustomInput
-            label="Password"
-            value={password}
-            onChangeText={text => {
-              setPassword(text);
-              if (errors.password || errors.general) {
-                setErrors({});
-              }
-            }}
-            placeholder="Enter your password"
-            secureTextEntry
-            autoCapitalize="none"
-            error={errors.password}
-          />
-
-          <TouchableOpacity
-            style={styles.forgotWrap}
-            onPress={() => navigation.navigate(SCREENS.FORGOTPASSWORD)}
-          >
-            <FontText
-              name="medium"
-              size={normalize(13)}
-              pureColor={colors.link}
-            >
-              Forgot password?
+          <TouchableOpacity onPress={() => navigation.navigate(SCREENS.SIGNUP)}>
+            <FontText name="bold" size={normalize(13)} pureColor={colors.link}>
+              Sign Up
             </FontText>
           </TouchableOpacity>
-
-          {errors.general ? (
-            <View style={styles.generalError}>
-              <FontText size={normalize(12)} pureColor={colors.error || 'red'}>
-                {errors.general}
-              </FontText>
-            </View>
-          ) : null}
-        </ScrollView>
-
-        <View style={styles.footer}>
-          <CustomButton
-            title="Log In"
-            onPress={handleLogin}
-            loading={loading}
-            style={styles.loginBtn}
-            rightIcon={<SvgIcons.arrow color={colors.white} />}
-          />
-
-          <View style={styles.subFooter}>
-            <FontText size={normalize(13)} pureColor={colors.placeholder}>
-              Don't have an account?
-            </FontText>
-
-            <TouchableOpacity
-              onPress={() => navigation.navigate(SCREENS.SIGNUP)}
-            >
-              <FontText
-                name="bold"
-                size={normalize(13)}
-                pureColor={colors.link}
-              >
-                Sign Up
-              </FontText>
-            </TouchableOpacity>
-          </View>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -238,5 +227,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingBottom: hp(2),
+  },
+  scrollView: {
+    flex: 1,
   },
 });

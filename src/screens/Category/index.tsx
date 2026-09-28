@@ -72,7 +72,8 @@ const CategoryScreen: React.FC<Props> = ({ navigation, route }) => {
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
         .select('id, slug, label, emoji, created_at')
-        .order('created_at', { ascending: true }).eq('is_visible', true);
+        .order('created_at', { ascending: true })
+        .eq('is_visible', true);
 
       if (!mounted) {
         return;
@@ -159,6 +160,11 @@ const CategoryScreen: React.FC<Props> = ({ navigation, route }) => {
     setSaving(true);
 
     try {
+      const rowsToSave = selectedIds.map(categoryId => ({
+        user_id: user.id,
+        category_id: categoryId,
+      }));
+
       if (isEditMode) {
         const { error: deleteError } = await supabase
           .from('user_categories')
@@ -177,17 +183,16 @@ const CategoryScreen: React.FC<Props> = ({ navigation, route }) => {
         }
       }
 
-      const { error: insertError } = await supabase
+      const { error: upsertError } = await supabase
         .from('user_categories')
-        .insert(
-          selectedIds.map(categoryId => ({
-            user_id: user.id,
-            category_id: categoryId,
-          })),
-        );
+        .upsert(rowsToSave, {
+          onConflict: ['user_id', 'category_id'],
+          ignoreDuplicates: false,
+          returning: 'minimal',
+        });
 
-      if (insertError) {
-        console.error('Save categories error:', insertError);
+      if (upsertError) {
+        console.error('Save categories error (upsert):', upsertError);
 
         Alert.alert(
           'Could not save topics',
@@ -197,11 +202,19 @@ const CategoryScreen: React.FC<Props> = ({ navigation, route }) => {
         return;
       }
 
-      if (isEditMode) {
-        navigation.goBack();
-      } else {
+      // Onboarding complete: go to dashboard and reset stack
+      if (!isEditMode) {
         completeCategorySelection();
+
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Dashboard' }],
+        });
+        return;
       }
+
+      // Edit mode: just go back
+      navigation.goBack();
     } catch (error) {
       console.error('Save preferences unexpected error:', error);
 
@@ -377,8 +390,6 @@ const CategoryTile: React.FC<CategoryTileProps> = ({
   selected,
   onPress,
 }) => {
-  console.log('category: w', category);
-
   return (
     <TouchableOpacity
       activeOpacity={0.82}
@@ -461,7 +472,6 @@ const styles = StyleSheet.create({
   },
 
   columnWrapper: {
-    // justifyContent: 'space-between',
     gap: wp(3),
     marginBottom: wp(3.2),
   },
